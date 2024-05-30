@@ -34,6 +34,8 @@ public class User implements UserDetails {
   private String DOB;
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private List<Order> orders;
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+  private List<Service> services;
 
   private boolean isEnabled = false;
 

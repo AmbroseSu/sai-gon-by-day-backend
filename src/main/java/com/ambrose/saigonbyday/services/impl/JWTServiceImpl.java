@@ -58,9 +58,8 @@ public String generateToken(UserDetails userDetails) {
     return extractClaims(token, Claims::getSubject);
   }
 
-  public List<String> extractRoles(String token){
-    Claims claims = extractAllClaims(token);
-    return (List<String>) claims.get("roles");
+  public String extractRoles(String token) {
+    return extractClaims(token, claims -> claims.get("roles", String.class));
   }
   private <T> T extractClaims(String token, Function<Claims, T> claimsResolvers){
     final Claims claims = extractAllClaims(token);

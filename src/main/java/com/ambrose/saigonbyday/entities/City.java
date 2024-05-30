@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.util.List;
 import lombok.Data;
 
 @Data
@@ -19,8 +20,8 @@ public class City {
   private Long id;
   private String name;
 
-  @OneToOne(mappedBy = "city", cascade = CascadeType.ALL)
-  private Destination destination;
+  @OneToMany(mappedBy = "city", cascade = CascadeType.ALL)
+  private List<Destination> destinations;
 
 
 }

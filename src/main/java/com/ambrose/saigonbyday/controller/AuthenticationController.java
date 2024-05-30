@@ -3,6 +3,8 @@ package com.ambrose.saigonbyday.controller;
 import com.ambrose.saigonbyday.config.ResponseUtil;
 import com.ambrose.saigonbyday.converter.GenericConverter;
 import com.ambrose.saigonbyday.dto.UpsertUserDTO;
+import com.ambrose.saigonbyday.dto.request.SignUp;
+import com.ambrose.saigonbyday.dto.request.SigninRequest;
 import com.ambrose.saigonbyday.entities.User;
 import com.ambrose.saigonbyday.entities.VerificationToken;
 import com.ambrose.saigonbyday.event.RegistrationCompleteEvent;
@@ -15,6 +17,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -82,11 +85,18 @@ public class AuthenticationController {
       }catch (Exception ex){
         return ResponseUtil.error(ex.getMessage(),"Wifi not connect", HttpStatus.BAD_REQUEST);
       }
-
-
     }else{
       return ResponseUtil.error("Send reset token false", "Reset token false", HttpStatus.BAD_REQUEST);
     }
+  }
+  @PostMapping("/saveInfor")
+  public ResponseEntity<?> saveInfor(@RequestBody SignUp signUp){
+    return authenticationService.saveInfor(signUp);
+  }
+
+  @PostMapping("/signin")
+  public ResponseEntity<?> signin (@RequestBody SigninRequest signinRequest){
+    return authenticationService.signin(signinRequest);
   }
 
 }

@@ -28,8 +28,8 @@ public class Service {
   private Boolean status;
   private String shortDescription;
   @ManyToOne
-  @JoinColumn(name = "supplierId")
-  private Supplier supplier;
+  @JoinColumn(name = "userId")
+  private User user;
 
   @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
   private List<ServiceInPackage> serviceInPackage;

@@ -36,8 +36,8 @@ public class SecurityConfiguration {
                 "/v3/api-docs/**",
                 "webjars/**")
             .permitAll()
-            .requestMatchers("/api/v1/admin").hasAnyAuthority(Role.ADMIN.name())
-            .requestMatchers("/api/v1/user").hasAnyAuthority(Role.STAFF.name(),Role.ADMIN.name())
+            .requestMatchers("/api/v1/admin").hasAnyAuthority("ROLE_ADMIN")
+            .requestMatchers("/api/v1/user").hasAnyAuthority("ROLE_CUSTOMER","ROLE_ADMIN")
             .anyRequest().authenticated())
         .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authenticationProvider(authenticationProvider()).addFilterBefore(

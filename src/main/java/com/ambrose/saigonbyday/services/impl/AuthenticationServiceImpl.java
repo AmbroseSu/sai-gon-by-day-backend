@@ -218,10 +218,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       if(!user.isEnabled()){
         return ResponseUtil.error("Please verify email before send password", "False", HttpStatus.BAD_REQUEST);
       }
-      user.setFullname(signUp.getFullname());
-      //user.setCountry(signUp.getCountry());
 
-      String phone = signUp.getPhone().substring(2);
+      //user.setCountry(signUp.getCountry());
+      String regexPassword = "^(?=.*[A-Z])(?=.*[!@#$%^&*()])(?=.*[0-9]).{8,32}$";
+
+      Pattern patternPassword = Pattern.compile(regexPassword);
+      Matcher matcherPassword = patternPassword.matcher(signUp.getPassword());
+
+      if (!matcherPassword.matches()) {
+        return ResponseUtil.error("Password Invalid", "False", HttpStatus.BAD_REQUEST);
+      }
+
+      String phone = signUp.getPhone();
       String regex = "^(\\+?\\d{1,4})?[-.\\s]?\\(?(\\d{2,3})\\)?[-.\\s]?\\d{3,4}[-.\\s]?\\d{3,4}$";
 
       Pattern pattern = Pattern.compile(regex);
@@ -230,7 +238,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       if (!matcher.matches()) {
         return ResponseUtil.error("Phone number must be 10 number", "False", HttpStatus.BAD_REQUEST);
       }
+      user.setFullname(signUp.getFullname());
       user.setPhone(signUp.getPhone());
+      user.setPassword(passwordEncoder.encode(signUp.getPassword()));
+      user.setAddress(signUp.getAddress());
+      user.setGender(signUp.getGender());
       //user.setGender(signUp.getGender());
       user.setRole(Role.CUSTOMER);
       UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
