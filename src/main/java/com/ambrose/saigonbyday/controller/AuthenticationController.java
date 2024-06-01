@@ -50,7 +50,7 @@ public class AuthenticationController {
     }
   }
 
-  @PostMapping("/verifyEmail")
+  @PostMapping("/verifyemail")
   public ResponseEntity<?>/*String*/ verifyEmail(@RequestParam("token") String token, @RequestParam("id") Long id){
     VerificationToken theToken = tokenRepository.findByToken(token);
     if(theToken == null){
@@ -73,7 +73,7 @@ public class AuthenticationController {
     //return "Invalid verification token";
   }
 
-  @PostMapping("/resetVerifyEmail")
+  @PostMapping("/resetverifyemail")
   public ResponseEntity<?> resetVerifyEmail(@RequestParam("email") String email, @RequestParam("id") Long id){
     String checkverifytoken = authenticationService.checkResetVerifyToken(email,id);
     if(checkverifytoken.equalsIgnoreCase("true")){
@@ -89,7 +89,7 @@ public class AuthenticationController {
       return ResponseUtil.error("Send reset token false", "Reset token false", HttpStatus.BAD_REQUEST);
     }
   }
-  @PostMapping("/saveInfor")
+  @PostMapping("/saveinfor")
   public ResponseEntity<?> saveInfor(@RequestBody SignUp signUp){
     return authenticationService.saveInfor(signUp);
   }

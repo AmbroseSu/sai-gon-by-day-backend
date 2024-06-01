@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
   //private final UserService userService;
   @GetMapping
-  @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
+  //@PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
   public ResponseEntity<String> sayHello(){
     return ResponseEntity.ok("Hi User");
   }

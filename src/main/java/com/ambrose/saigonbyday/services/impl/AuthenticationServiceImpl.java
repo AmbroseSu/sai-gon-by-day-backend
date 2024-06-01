@@ -48,30 +48,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   //private final OtpSmsRepository otpSmsRepository;
   //private final TwilioConfig twilioConfig;
 
-  public ResponseEntity<?> signup(User user){
-    try {
-      // check if user already exists
-      if (userRepository.existsByEmail(user.getEmail())) {
-        return ResponseUtil.error("Email is already in use","Sign up failed", HttpStatus.BAD_REQUEST);
-      }
-
-      //user.setEmail(user.getEmail());
-      user.setId(user.getId());
-      user.setFullname(user.getFullname());
-      //user.setSecondname(user.getSecondname());
-      user.setRole(Role.CUSTOMER);
-      user.setPassword(passwordEncoder.encode(user.getPassword()));
-      UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
-      userRepository.save(user);
-      return ResponseUtil.getObject(result, HttpStatus.CREATED, "ok");
-    } catch (ConstraintViolationException e) {
-      return ConstraintViolationExceptionHandler.handleConstraintViolation(e);
-    }
-
-
-    //return ResponseUtil.getObject(user, HttpStatus.OK, "Sign up successfully");
-
-  }
 
   public ResponseEntity<?> checkEmail(String email){
     try {
@@ -154,59 +130,33 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     return newUserDTO;
   }
 
-  public ResponseEntity<?> checkPassword(String email, String password){
-    try{
-      User user = userRepository.findUserByEmail(email);
-      if(user == null){
-        return ResponseUtil.error("Email not exist","Failed", HttpStatus.BAD_REQUEST);
-      }
-      //check isenable
-      if(!user.isEnabled()){
-        return ResponseUtil.error("Please verify email before send password", "False", HttpStatus.BAD_REQUEST);
-      }
-      String regex = "^(?=.*[A-Z])(?=.*[!@#$%^&*()])(?=.*[0-9]).{8,32}$";
+//  public ResponseEntity<?> checkPassword(String email, String password){
+//    try{
+//      User user = userRepository.findUserByEmail(email);
+//      if(user == null){
+//        return ResponseUtil.error("Email not exist","Failed", HttpStatus.BAD_REQUEST);
+//      }
+//      //check isenable
+//      if(!user.isEnabled()){
+//        return ResponseUtil.error("Please verify email before send password", "False", HttpStatus.BAD_REQUEST);
+//      }
+//      String regex = "^(?=.*[A-Z])(?=.*[!@#$%^&*()])(?=.*[0-9]).{8,32}$";
+//
+//      Pattern pattern = Pattern.compile(regex);
+//      Matcher matcher = pattern.matcher(password);
+//
+//      if (!matcher.matches()) {
+//        return ResponseUtil.error("Password Invalid", "False", HttpStatus.BAD_REQUEST);
+//      }
+//      user.setPassword(passwordEncoder.encode(password));
+//      UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
+//      userRepository.save(user);
+//      return ResponseUtil.getObject(result, HttpStatus.CREATED, "ok");
+//    }catch (ConstraintViolationException e) {
+//      return ConstraintViolationExceptionHandler.handleConstraintViolation(e);
+//    }
+//  }
 
-      Pattern pattern = Pattern.compile(regex);
-      Matcher matcher = pattern.matcher(password);
-
-      if (!matcher.matches()) {
-        return ResponseUtil.error("Password Invalid", "False", HttpStatus.BAD_REQUEST);
-      }
-      user.setPassword(passwordEncoder.encode(password));
-      UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
-      userRepository.save(user);
-      return ResponseUtil.getObject(result, HttpStatus.CREATED, "ok");
-    }catch (ConstraintViolationException e) {
-      return ConstraintViolationExceptionHandler.handleConstraintViolation(e);
-    }
-  }
-
-  public ResponseEntity<?> checkPasswordPhone(String phone, String password){
-    try{
-      User user = userRepository.findUserByPhone(phone);
-      if(user == null){
-        return ResponseUtil.error("Email not exist","Failed", HttpStatus.BAD_REQUEST);
-      }
-      //check isenable
-      if(!user.isEnabled()){
-        return ResponseUtil.error("Please verify email before send password", "False", HttpStatus.BAD_REQUEST);
-      }
-      String regex = "^(?=.*[A-Z])(?=.*[!@#$%^&*()])(?=.*[0-9]).{8,32}$";
-
-      Pattern pattern = Pattern.compile(regex);
-      Matcher matcher = pattern.matcher(password);
-
-      if (!matcher.matches()) {
-        return ResponseUtil.error("Password Invalid", "False", HttpStatus.BAD_REQUEST);
-      }
-      user.setPassword(passwordEncoder.encode(password));
-      UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
-      userRepository.save(user);
-      return ResponseUtil.getObject(result, HttpStatus.CREATED, "ok");
-    }catch (ConstraintViolationException e) {
-      return ConstraintViolationExceptionHandler.handleConstraintViolation(e);
-    }
-  }
 
   public ResponseEntity<?> saveInfor(SignUp signUp){
     try{
@@ -255,63 +205,4 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
   }
 
-  public ResponseEntity<?> saveInforPhone(SignUp signUp){
-    try{
-      User user = userRepository.findUserByPhone(signUp.getPhone());
-      if(user == null){
-        return ResponseUtil.error("Phone Number not exist","Failed", HttpStatus.BAD_REQUEST);
-      }
-      //check isenable
-      if(!user.isEnabled()){
-        return ResponseUtil.error("Please verify phone before send password", "False", HttpStatus.BAD_REQUEST);
-      }
-      user.setFullname(signUp.getFullname());
-      //user.setCountry(signUp.getCountry());
-
-      String regex = "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$";
-
-      Pattern pattern = Pattern.compile(regex);
-      Matcher matcher = pattern.matcher(signUp.getEmail());
-
-      if (!matcher.matches()) {
-        return ResponseUtil.error("Form email not true", "False", HttpStatus.BAD_REQUEST);
-      }
-      //user.setGender(signUp.getGender());
-      user.setRole(Role.CUSTOMER);
-      user.setEmail(signUp.getEmail());
-      UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
-      userRepository.save(user);
-
-
-      return ResponseUtil.getObject(result, HttpStatus.CREATED, "ok");
-    }catch (ConstraintViolationException e) {
-      return ConstraintViolationExceptionHandler.handleConstraintViolation(e);
-    }
-  }
-
-
-
-
-
-  public ResponseEntity<?> getUser(Long id){
-    try{
-      User user = userRepository.findUserById(id);
-      if(user == null){
-        return ResponseUtil.error("User not exist", "Get User False", HttpStatus.BAD_REQUEST);
-      }
-      UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
-      return ResponseUtil.getObject(result,HttpStatus.OK,"Get User Successfully");
-    }catch (ConstraintViolationException e){
-      return ResponseUtil.error(e.toString(),e.getMessage(),HttpStatus.BAD_REQUEST);
-    }
-
-
-  }
-
-
-
-  private String generateOTP() {
-    return new DecimalFormat("00000")
-        .format(new Random().nextInt(99999));
-  }
 }
