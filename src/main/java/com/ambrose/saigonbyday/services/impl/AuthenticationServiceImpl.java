@@ -23,6 +23,7 @@ import com.ambrose.saigonbyday.services.UserService;
 import jakarta.validation.ConstraintViolationException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -108,6 +110,35 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     jwtAuthenticationResponse.setRefreshToken(refreshToken);
     return ResponseUtil.getObject(jwtAuthenticationResponse, HttpStatus.OK, "Sign in successfully");
 
+  }
+
+  public ResponseEntity<?> signinGoogle(String email){
+    try{
+      Optional<User> userDetails = userRepository.findByLogin(email);
+      User user = new User();
+      if(userDetails.isEmpty()){
+
+        user.setEmail(email);
+        user.setLogin(email);
+        user.setRole(Role.CUSTOMER);
+        user.setEnabled(true);
+        //UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
+        userRepository.save(user);
+      }else{
+        user = userRepository.findUserByEmail(email);
+      }
+      String jwt = jwtService.generateToken(user);
+      String refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
+      JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse();
+      UserDTO userDTO = convertUserToUserDTO(user);
+      jwtAuthenticationResponse.setUserDTO(userDTO);
+      jwtAuthenticationResponse.setToken(jwt);
+      jwtAuthenticationResponse.setRefreshToken(refreshToken);
+      return ResponseUtil.getObject(jwtAuthenticationResponse, HttpStatus.OK, "Sign in successfully");
+
+    }catch (Exception ex){
+      return ResponseUtil.error(ex.getMessage(),"Sign In Failed",HttpStatus.BAD_REQUEST);
+    }
   }
 
 

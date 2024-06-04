@@ -12,10 +12,21 @@ import com.ambrose.saigonbyday.repository.UserRepository;
 import com.ambrose.saigonbyday.repository.VerificationTokenRepository;
 import com.ambrose.saigonbyday.services.AuthenticationService;
 import com.ambrose.saigonbyday.services.UserService;
+import com.ambrose.saigonbyday.services.impl.TokenBlacklistService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@CrossOrigin
 public class AuthenticationController {
   private final AuthenticationService authenticationService;
   private final ApplicationEventPublisher publisher;
@@ -97,6 +109,34 @@ public class AuthenticationController {
   @PostMapping("/signin")
   public ResponseEntity<?> signin (@RequestBody SigninRequest signinRequest){
     return authenticationService.signin(signinRequest);
+  }
+
+  @GetMapping("/signingoogle")
+  public ResponseEntity<?> signinGoogle(OAuth2AuthenticationToken auth2AuthenticationToken){
+    String email = auth2AuthenticationToken.getPrincipal().getAttribute("email");
+    return authenticationService.signinGoogle(email);
+  }
+
+//  @GetMapping("/google")
+//  public Map<String,Object> Google(OAuth2AuthenticationToken auth2AuthenticationToken){
+//
+//    return auth2AuthenticationToken.getPrincipal().getAttributes();
+//  }
+private final TokenBlacklistService tokenBlacklistService;
+
+
+
+  @PostMapping("/logout")
+  public ResponseEntity<?> logout(HttpServletRequest request) {
+    String authHeader = request.getHeader("Authorization");
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+      String jwt = authHeader.substring(7);
+      tokenBlacklistService.addTokenToBlacklist(jwt);
+      SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+      logoutHandler.logout(request, null, SecurityContextHolder.getContext().getAuthentication());
+      request.getSession().invalidate(); // Invalidate the session
+    }
+    return ResponseEntity.ok("You have been logged out successfully.");
   }
 
 }

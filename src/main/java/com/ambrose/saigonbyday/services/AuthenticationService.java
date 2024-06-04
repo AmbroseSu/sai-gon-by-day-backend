@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 public interface AuthenticationService {
   ResponseEntity<?> signin(SigninRequest signinRequest);
 
+  ResponseEntity<?> signinGoogle(String email);
   ResponseEntity<?> refreshToken(RefreshTokenRequest refreshTokenRequest);
 
   public ResponseEntity<?> checkEmail(String email);

@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
   //private final UserService userService;
-  @GetMapping
-  //@PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
+  @GetMapping("/get")
+  //@PreAuthorize("hasAuthority('ROLE_ADMIN')")
   public ResponseEntity<String> sayHello(){
     return ResponseEntity.ok("Hi User");
   }
