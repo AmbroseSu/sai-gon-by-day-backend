@@ -23,6 +23,7 @@ import com.ambrose.saigonbyday.services.UserService;
 import jakarta.validation.ConstraintViolationException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -48,30 +50,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   //private final OtpSmsRepository otpSmsRepository;
   //private final TwilioConfig twilioConfig;
 
-  public ResponseEntity<?> signup(User user){
-    try {
-      // check if user already exists
-      if (userRepository.existsByEmail(user.getEmail())) {
-        return ResponseUtil.error("Email is already in use","Sign up failed", HttpStatus.BAD_REQUEST);
-      }
-
-      //user.setEmail(user.getEmail());
-      user.setId(user.getId());
-      user.setFullname(user.getFullname());
-      //user.setSecondname(user.getSecondname());
-      user.setRole(Role.CUSTOMER);
-      user.setPassword(passwordEncoder.encode(user.getPassword()));
-      UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
-      userRepository.save(user);
-      return ResponseUtil.getObject(result, HttpStatus.CREATED, "ok");
-    } catch (ConstraintViolationException e) {
-      return ConstraintViolationExceptionHandler.handleConstraintViolation(e);
-    }
-
-
-    //return ResponseUtil.getObject(user, HttpStatus.OK, "Sign up successfully");
-
-  }
 
   public ResponseEntity<?> checkEmail(String email){
     try {
@@ -134,6 +112,35 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   }
 
+  public ResponseEntity<?> signinGoogle(String email){
+    try{
+      Optional<User> userDetails = userRepository.findByLogin(email);
+      User user = new User();
+      if(userDetails.isEmpty()){
+
+        user.setEmail(email);
+        user.setLogin(email);
+        user.setRole(Role.CUSTOMER);
+        user.setEnabled(true);
+        //UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
+        userRepository.save(user);
+      }else{
+        user = userRepository.findUserByEmail(email);
+      }
+      String jwt = jwtService.generateToken(user);
+      String refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
+      JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse();
+      UserDTO userDTO = convertUserToUserDTO(user);
+      jwtAuthenticationResponse.setUserDTO(userDTO);
+      jwtAuthenticationResponse.setToken(jwt);
+      jwtAuthenticationResponse.setRefreshToken(refreshToken);
+      return ResponseUtil.getObject(jwtAuthenticationResponse, HttpStatus.OK, "Sign in successfully");
+
+    }catch (Exception ex){
+      return ResponseUtil.error(ex.getMessage(),"Sign In Failed",HttpStatus.BAD_REQUEST);
+    }
+  }
+
 
   public ResponseEntity<?> refreshToken(RefreshTokenRequest refreshTokenRequest){
     String userEmail = jwtService.extractUserName(refreshTokenRequest.getToken());
@@ -154,59 +161,33 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     return newUserDTO;
   }
 
-  public ResponseEntity<?> checkPassword(String email, String password){
-    try{
-      User user = userRepository.findUserByEmail(email);
-      if(user == null){
-        return ResponseUtil.error("Email not exist","Failed", HttpStatus.BAD_REQUEST);
-      }
-      //check isenable
-      if(!user.isEnabled()){
-        return ResponseUtil.error("Please verify email before send password", "False", HttpStatus.BAD_REQUEST);
-      }
-      String regex = "^(?=.*[A-Z])(?=.*[!@#$%^&*()])(?=.*[0-9]).{8,32}$";
+//  public ResponseEntity<?> checkPassword(String email, String password){
+//    try{
+//      User user = userRepository.findUserByEmail(email);
+//      if(user == null){
+//        return ResponseUtil.error("Email not exist","Failed", HttpStatus.BAD_REQUEST);
+//      }
+//      //check isenable
+//      if(!user.isEnabled()){
+//        return ResponseUtil.error("Please verify email before send password", "False", HttpStatus.BAD_REQUEST);
+//      }
+//      String regex = "^(?=.*[A-Z])(?=.*[!@#$%^&*()])(?=.*[0-9]).{8,32}$";
+//
+//      Pattern pattern = Pattern.compile(regex);
+//      Matcher matcher = pattern.matcher(password);
+//
+//      if (!matcher.matches()) {
+//        return ResponseUtil.error("Password Invalid", "False", HttpStatus.BAD_REQUEST);
+//      }
+//      user.setPassword(passwordEncoder.encode(password));
+//      UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
+//      userRepository.save(user);
+//      return ResponseUtil.getObject(result, HttpStatus.CREATED, "ok");
+//    }catch (ConstraintViolationException e) {
+//      return ConstraintViolationExceptionHandler.handleConstraintViolation(e);
+//    }
+//  }
 
-      Pattern pattern = Pattern.compile(regex);
-      Matcher matcher = pattern.matcher(password);
-
-      if (!matcher.matches()) {
-        return ResponseUtil.error("Password Invalid", "False", HttpStatus.BAD_REQUEST);
-      }
-      user.setPassword(passwordEncoder.encode(password));
-      UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
-      userRepository.save(user);
-      return ResponseUtil.getObject(result, HttpStatus.CREATED, "ok");
-    }catch (ConstraintViolationException e) {
-      return ConstraintViolationExceptionHandler.handleConstraintViolation(e);
-    }
-  }
-
-  public ResponseEntity<?> checkPasswordPhone(String phone, String password){
-    try{
-      User user = userRepository.findUserByPhone(phone);
-      if(user == null){
-        return ResponseUtil.error("Email not exist","Failed", HttpStatus.BAD_REQUEST);
-      }
-      //check isenable
-      if(!user.isEnabled()){
-        return ResponseUtil.error("Please verify email before send password", "False", HttpStatus.BAD_REQUEST);
-      }
-      String regex = "^(?=.*[A-Z])(?=.*[!@#$%^&*()])(?=.*[0-9]).{8,32}$";
-
-      Pattern pattern = Pattern.compile(regex);
-      Matcher matcher = pattern.matcher(password);
-
-      if (!matcher.matches()) {
-        return ResponseUtil.error("Password Invalid", "False", HttpStatus.BAD_REQUEST);
-      }
-      user.setPassword(passwordEncoder.encode(password));
-      UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
-      userRepository.save(user);
-      return ResponseUtil.getObject(result, HttpStatus.CREATED, "ok");
-    }catch (ConstraintViolationException e) {
-      return ConstraintViolationExceptionHandler.handleConstraintViolation(e);
-    }
-  }
 
   public ResponseEntity<?> saveInfor(SignUp signUp){
     try{
@@ -218,10 +199,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       if(!user.isEnabled()){
         return ResponseUtil.error("Please verify email before send password", "False", HttpStatus.BAD_REQUEST);
       }
-      user.setFullname(signUp.getFullname());
-      //user.setCountry(signUp.getCountry());
 
-      String phone = signUp.getPhone().substring(2);
+      //user.setCountry(signUp.getCountry());
+      String regexPassword = "^(?=.*[A-Z])(?=.*[!@#$%^&*()])(?=.*[0-9]).{8,32}$";
+
+      Pattern patternPassword = Pattern.compile(regexPassword);
+      Matcher matcherPassword = patternPassword.matcher(signUp.getPassword());
+
+      if (!matcherPassword.matches()) {
+        return ResponseUtil.error("Password Invalid", "False", HttpStatus.BAD_REQUEST);
+      }
+
+      String phone = signUp.getPhone();
       String regex = "^(\\+?\\d{1,4})?[-.\\s]?\\(?(\\d{2,3})\\)?[-.\\s]?\\d{3,4}[-.\\s]?\\d{3,4}$";
 
       Pattern pattern = Pattern.compile(regex);
@@ -230,43 +219,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       if (!matcher.matches()) {
         return ResponseUtil.error("Phone number must be 10 number", "False", HttpStatus.BAD_REQUEST);
       }
-      user.setPhone(signUp.getPhone());
-      //user.setGender(signUp.getGender());
-      user.setRole(Role.CUSTOMER);
-      UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
-      userRepository.save(user);
-
-
-      return ResponseUtil.getObject(result, HttpStatus.CREATED, "ok");
-    }catch (ConstraintViolationException e) {
-      return ConstraintViolationExceptionHandler.handleConstraintViolation(e);
-    }
-  }
-
-  public ResponseEntity<?> saveInforPhone(SignUp signUp){
-    try{
-      User user = userRepository.findUserByPhone(signUp.getPhone());
-      if(user == null){
-        return ResponseUtil.error("Phone Number not exist","Failed", HttpStatus.BAD_REQUEST);
-      }
-      //check isenable
-      if(!user.isEnabled()){
-        return ResponseUtil.error("Please verify phone before send password", "False", HttpStatus.BAD_REQUEST);
-      }
       user.setFullname(signUp.getFullname());
-      //user.setCountry(signUp.getCountry());
-
-      String regex = "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$";
-
-      Pattern pattern = Pattern.compile(regex);
-      Matcher matcher = pattern.matcher(signUp.getEmail());
-
-      if (!matcher.matches()) {
-        return ResponseUtil.error("Form email not true", "False", HttpStatus.BAD_REQUEST);
-      }
+      user.setPhone(signUp.getPhone());
+      user.setPassword(passwordEncoder.encode(signUp.getPassword()));
+      user.setAddress(signUp.getAddress());
+      user.setGender(signUp.getGender());
       //user.setGender(signUp.getGender());
       user.setRole(Role.CUSTOMER);
-      user.setEmail(signUp.getEmail());
       UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
       userRepository.save(user);
 
@@ -277,29 +236,4 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
   }
 
-
-
-
-
-  public ResponseEntity<?> getUser(Long id){
-    try{
-      User user = userRepository.findUserById(id);
-      if(user == null){
-        return ResponseUtil.error("User not exist", "Get User False", HttpStatus.BAD_REQUEST);
-      }
-      UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
-      return ResponseUtil.getObject(result,HttpStatus.OK,"Get User Successfully");
-    }catch (ConstraintViolationException e){
-      return ResponseUtil.error(e.toString(),e.getMessage(),HttpStatus.BAD_REQUEST);
-    }
-
-
-  }
-
-
-
-  private String generateOTP() {
-    return new DecimalFormat("00000")
-        .format(new Random().nextInt(99999));
-  }
 }

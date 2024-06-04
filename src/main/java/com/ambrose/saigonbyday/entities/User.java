@@ -12,11 +12,13 @@ import jakarta.persistence.Table;
 import java.util.Collection;
 import java.util.List;
 import lombok.Data;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Data
+@ToString
 @Entity
 @Table(name = "tbl_user")
 public class User implements UserDetails {
@@ -34,6 +36,8 @@ public class User implements UserDetails {
   private String DOB;
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private List<Order> orders;
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+  private List<Service> services;
 
   private boolean isEnabled = false;
 

@@ -9,8 +9,9 @@ import lombok.Data;
 public class SignUp {
   String email;
   String fullname;
-  String country;
   String phone;
+  String password;
+  String address;
   Gender gender;
-  Role role;
+  //Role role;
 }

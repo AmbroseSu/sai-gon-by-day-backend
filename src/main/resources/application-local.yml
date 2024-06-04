@@ -6,7 +6,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate.format_sql: true
@@ -14,10 +14,27 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: haconghieu2003@gmail.com
-    password: cjla uhwf tkik yeom
+    password: "..." #themkey
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: "..." #them clientid
+            client-secret: "..."#them clientsecret
+            scope: profile, email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
