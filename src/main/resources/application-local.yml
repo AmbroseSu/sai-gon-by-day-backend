@@ -26,8 +26,8 @@ spring:
       client:
         registration:
           google:
-            client-id: "..."
-            client-secret: "..."
+            client-id: "..." #them clientid
+            client-secret: "..."#them clientsecret
             scope: profile, email
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             authorization-grant-type: authorization_code
