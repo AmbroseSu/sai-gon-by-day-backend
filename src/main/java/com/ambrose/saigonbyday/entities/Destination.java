@@ -39,5 +39,5 @@ public class Destination {
   private List<PackageInDestination> packageInDestinations;
 
   @OneToMany(mappedBy = "destination",cascade = CascadeType.ALL)
-  private List<Service> services;
+  private List<Servicee> servicees;
 }

@@ -38,9 +38,9 @@ public String generateToken(UserDetails userDetails) {
 
   return Jwts.builder()
       .setSubject(userDetails.getUsername())
-      .claim("roles", role) // Thêm thông tin về vai trò vào token
+      .claim("roles", role)
       .setIssuedAt(new Date(System.currentTimeMillis()))
-      .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+      .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
       .signWith(getSigninKey(), SignatureAlgorithm.HS256)
       .compact();
 }

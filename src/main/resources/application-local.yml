@@ -14,7 +14,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: haconghieu2003@gmail.com
-    password: "..." #themkey
+    password: cjla uhwf tkik yeom
     properties:
       mail:
         smtp:
@@ -26,8 +26,8 @@ spring:
       client:
         registration:
           google:
-            client-id: "..." #them clientid
-            client-secret: "..."#them clientsecret
+            client-id: 837678669718-282ilen1gvbcq9moahd4hb4vpbtb1jjk.apps.googleusercontent.com
+            client-secret: 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
             scope: profile, email
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             authorization-grant-type: authorization_code

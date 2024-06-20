@@ -18,8 +18,8 @@ public class ServiceInPackage {
   private Long id;
 
   @ManyToOne
-  @JoinColumn(name = "serviceId")
-  private Service service;
+  @JoinColumn(name = "serviceeId")
+  private Servicee servicee;
 
   @ManyToOne
   @JoinColumn(name = "packageInDestination")
