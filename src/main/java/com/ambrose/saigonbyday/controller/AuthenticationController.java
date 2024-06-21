@@ -13,12 +13,18 @@ import com.ambrose.saigonbyday.repository.VerificationTokenRepository;
 import com.ambrose.saigonbyday.services.AuthenticationService;
 import com.ambrose.saigonbyday.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,8 +45,9 @@ public class AuthenticationController {
   private final UserService userService;
   private final UserRepository userRepository;
   private final GenericConverter genericConverter;
+  private final OAuth2AuthorizedClientService authorizedClientService;
 
-  @PostMapping("/checkemail")
+  @PostMapping("/check-email")
   public ResponseEntity<?> checkEmail(@RequestParam("email") String email){
     ResponseEntity<?> result = authenticationService.checkEmail(email);
     if(result.getStatusCode()== HttpStatus.BAD_REQUEST){
@@ -57,7 +64,7 @@ public class AuthenticationController {
     }
   }
 
-  @PostMapping("/verifyemail")
+  @PostMapping("/verify-email")
   public ResponseEntity<?>/*String*/ verifyEmail(@RequestParam("token") String token, @RequestParam("id") Long id){
     VerificationToken theToken = tokenRepository.findByToken(token);
     if(theToken == null){
@@ -80,7 +87,7 @@ public class AuthenticationController {
     //return "Invalid verification token";
   }
 
-  @PostMapping("/resetverifyemail")
+  @PostMapping("/reset-verify-email")
   public ResponseEntity<?> resetVerifyEmail(@RequestParam("email") String email, @RequestParam("id") Long id){
     String checkverifytoken = authenticationService.checkResetVerifyToken(email,id);
     if(checkverifytoken.equalsIgnoreCase("true")){
@@ -96,7 +103,7 @@ public class AuthenticationController {
       return ResponseUtil.error("Send reset token false", "Reset token false", HttpStatus.BAD_REQUEST);
     }
   }
-  @PostMapping("/saveinfor")
+  @PostMapping("/save-infor")
   public ResponseEntity<?> saveInfor(@RequestBody SignUp signUp){
     return authenticationService.saveInfor(signUp);
   }
@@ -111,5 +118,28 @@ public class AuthenticationController {
     String email = auth2AuthenticationToken.getPrincipal().getAttribute("email");
     return authenticationService.signinGoogle(email);
   }
+
+  @GetMapping("/token-google")
+  public ResponseEntity<?> tokenGoogle(OAuth2AuthenticationToken auth2AuthenticationToken) {
+    // Fetch the OAuth2 token
+    String email = auth2AuthenticationToken.getPrincipal().getAttribute("email");
+
+    // Fetch the OAuth2 token
+    OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
+        auth2AuthenticationToken.getAuthorizedClientRegistrationId(),
+        auth2AuthenticationToken.getName()
+    );
+    String accessToken = authorizedClient.getAccessToken().getTokenValue();
+
+    // Combine email and access token in response
+    Map<String, String> response = new HashMap<>();
+    response.put("email", email);
+    response.put("accessToken", accessToken);
+
+    return ResponseEntity.ok(response);
+  }
+
+
+
 
 }

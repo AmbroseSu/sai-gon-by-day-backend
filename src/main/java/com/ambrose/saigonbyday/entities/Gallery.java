@@ -19,6 +19,8 @@ public class Gallery {
   private String imageNo1;
   private String imageNo2;
   private String imageNo3;
+  private Boolean status;
+
   @OneToOne(mappedBy = "gallery", cascade = CascadeType.ALL)
   private Destination destination;
 }
