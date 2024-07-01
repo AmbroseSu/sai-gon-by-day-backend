@@ -19,9 +19,9 @@ public interface CityRepository extends JpaRepository<City, String> {
 
   City findByStatusIsTrueAndId(Long id);
 
+  List<City> findAllBy(Pageable pageable);
   List<City> findAllByStatusIsTrue(Pageable pageable);
   Long countAllByStatusIsTrue();
 
-  @Query("SELECT d.city FROM Destination d WHERE d.city.id = :cityId ")
-  City findCityByCityId(@Param("cityId") Long cityId);
+
 }

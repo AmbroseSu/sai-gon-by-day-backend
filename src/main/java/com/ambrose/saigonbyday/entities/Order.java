@@ -1,5 +1,6 @@
 package com.ambrose.saigonbyday.entities;
 
+import com.ambrose.saigonbyday.entities.enums.Status;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,6 +24,8 @@ public class Order {
   private Long id;
   private Float totalPrice;
   private Long date;
+  private Status is_status;
+  private Boolean status;
   @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
   private PaymentHistory paymentHistory;
 

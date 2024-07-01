@@ -79,6 +79,22 @@ public class DestinationServiceImpl implements DestinationService {
 
   }
 
+  @Override
+  public ResponseEntity<?> findAll(int page, int limit) {
+    Pageable pageable = PageRequest.of(page - 1, limit);
+    List<Destination> entities = destinationRepository.findAllBy(pageable);
+    List<DestinationDTO> result = new ArrayList<>();
+
+    convertListDestinationToListDestinationDTO(entities, result);
+
+    return ResponseUtil.getCollection(result,
+        HttpStatus.OK,
+        "Fetched successfully",
+        page,
+        limit,
+        destinationRepository.countAllByStatusIsTrue());
+  }
+
   private void convertListDestinationToListDestinationDTO(List<Destination> destinations, List<DestinationDTO> result){
     for (Destination destination : destinations){
       DestinationDTO newDestinationDTO = convertDestinationToDestinationDTO(destination);
@@ -166,7 +182,7 @@ public class DestinationServiceImpl implements DestinationService {
     if (destination.getCity() == null){
       newDestinationDTO.setCityId(null);
     } else{
-      City city = cityRepository.findCityByCityId(destination.getCity().getId());
+      City city = destinationRepository.findCityByCityId(destination.getCity().getId());
       newDestinationDTO.setCityId(city.getId());
     }
     return newDestinationDTO;

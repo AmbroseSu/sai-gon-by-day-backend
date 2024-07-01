@@ -202,6 +202,21 @@ public class ServiceServiceImpl implements ServiceService {
       return ResponseUtil.error(ex.getMessage(), "Failed", HttpStatus.BAD_REQUEST);
     }
   }
+  @Override
+  public ResponseEntity<?> findAll(int page, int limit) {
+    Pageable pageable = PageRequest.of(page - 1, limit);
+    List<Servicee> entities = serviceRepository.findAllBy(pageable);
+    List<ServiceDTO> result = new ArrayList<>();
+
+    convertListServiceToListServiceDTO(entities, result);
+
+    return ResponseUtil.getCollection(result,
+        HttpStatus.OK,
+        "Fetched successfully",
+        page,
+        limit,
+        serviceRepository.countAllByStatusIsTrue());
+  }
 
   @Override
   public Boolean checkExist(Long id) {

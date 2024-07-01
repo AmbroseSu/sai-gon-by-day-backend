@@ -99,6 +99,22 @@ public class GalleryServiceImpl implements GalleryService {
   }
 
   @Override
+  public ResponseEntity<?> findAll(int page, int limit) {
+    Pageable pageable = PageRequest.of(page - 1, limit);
+    List<Gallery> entities = galleryRepository.findAllBy(pageable);
+    List<GalleryDTO> result = new ArrayList<>();
+
+    convertListGalleryToListGalleryDTO(entities, result);
+
+    return ResponseUtil.getCollection(result,
+        HttpStatus.OK,
+        "Fetched successfully",
+        page,
+        limit,
+        galleryRepository.countAllByStatusIsTrue());
+  }
+
+  @Override
   public Boolean checkExist(Long id) {
     Gallery gallery = galleryRepository.findById(id);
     return gallery != null;

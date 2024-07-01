@@ -16,6 +16,7 @@ public interface ServiceRepository extends JpaRepository<Servicee, String> {
 
   List<Servicee> findAllByDestinationId(Long cityId);
 
+  List<Servicee> findAllBy(Pageable pageable);
   @Query("SELECT s.user FROM Servicee s WHERE s.user.id = :userId")
   User findUserByUserId(@Param("userId") Long userId);
 

@@ -4,6 +4,8 @@ package com.ambrose.saigonbyday.services;
 import com.ambrose.saigonbyday.repository.CityRepository;
 import com.ambrose.saigonbyday.repository.DestinationRepository;
 import com.ambrose.saigonbyday.repository.GalleryRepository;
+import com.ambrose.saigonbyday.repository.OrderRepository;
+import com.ambrose.saigonbyday.repository.PackageInDayRepository;
 import com.ambrose.saigonbyday.repository.PackageInDestinationRepository;
 import com.ambrose.saigonbyday.repository.PackageRepository;
 import com.ambrose.saigonbyday.repository.ServiceRepository;
@@ -114,7 +116,21 @@ public class ServiceUtils {
       }
     }
   }
+  public static void validatePackageInDayIds(List<Long> packageInDayIds,  PackageInDayRepository packageInDayRepository) {
+    for (Long packageInDayId : packageInDayIds) {
+      if (packageInDayRepository.findById(packageInDayId) == null) {
+        errors.add("Package In Day with id " + packageInDayId + " does not exist");
+      }
+    }
+  }
 
+  public static void validateOrderIds(List<Long> orderIds,  OrderRepository orderRepository) {
+    for (Long orderId : orderIds) {
+      if (orderRepository.findById(orderId) == null) {
+        errors.add("Order with id " + orderId + " does not exist");
+      }
+    }
+  }
 
 
 }

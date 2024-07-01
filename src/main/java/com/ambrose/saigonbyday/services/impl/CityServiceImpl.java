@@ -175,6 +175,22 @@ public class CityServiceImpl implements CityService {
 
   }
 
+  @Override
+  public ResponseEntity<?> findAll(int page, int limit) {
+    Pageable pageable = PageRequest.of(page - 1, limit);
+    List<City> entities = cityRepository.findAllBy(pageable);
+    List<CityDTO> result = new ArrayList<>();
+
+    convertListCityToListCityDTO(entities, result);
+
+    return ResponseUtil.getCollection(result,
+        HttpStatus.OK,
+        "Fetched successfully",
+        page,
+        limit,
+        cityRepository.countAllByStatusIsTrue());
+  }
+
   private void convertListCityToListCityDTO(List<City> cities, List<CityDTO> result){
     for (City city : cities){
       CityDTO newCityDTO = convertCityToCityDTO(city);

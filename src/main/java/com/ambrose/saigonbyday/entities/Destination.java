@@ -1,6 +1,7 @@
 package com.ambrose.saigonbyday.entities;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,6 +23,7 @@ public class Destination {
   private Long id;
   private String name;
   private String address;
+  @Column(length = 20000)
   private String description;
   private String shortDescription;
   private Boolean status;
