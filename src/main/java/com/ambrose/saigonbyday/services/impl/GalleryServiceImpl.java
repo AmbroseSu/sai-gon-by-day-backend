@@ -127,4 +127,14 @@ public class GalleryServiceImpl implements GalleryService {
     }
   }
 
+  @Override
+  public ResponseEntity<?> findByDestinationId(Long id) {
+    Gallery gallery = galleryRepository.findByDestinationId(id);
+    if (gallery != null){
+      GalleryDTO result = (GalleryDTO) genericConverter.toDTO(gallery, GalleryDTO.class);
+      return ResponseUtil.getObject(result, HttpStatus.OK, "Fetched successfully");
+    }else{
+      return ResponseUtil.error("Gallery not found", "Cannot Find Gallery", HttpStatus.NOT_FOUND);
+    }
+  }
 }

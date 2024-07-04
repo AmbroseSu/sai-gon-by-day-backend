@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/gallery")
+@RequestMapping("/api/v1/package-in-day")
 @RequiredArgsConstructor
 @PreAuthorize("hasAuthority('CUSTOMER')")
 public class PackageInDayController {

@@ -1,9 +1,13 @@
 package com.ambrose.saigonbyday.services.impl;
 
+import com.ambrose.saigonbyday.config.ResponseUtil;
 import com.ambrose.saigonbyday.converter.GenericConverter;
+import com.ambrose.saigonbyday.dto.GalleryDTO;
 import com.ambrose.saigonbyday.dto.UserDTO;
+import com.ambrose.saigonbyday.entities.Gallery;
 import com.ambrose.saigonbyday.entities.User;
 import com.ambrose.saigonbyday.entities.VerificationToken;
+import com.ambrose.saigonbyday.entities.enums.Role;
 import com.ambrose.saigonbyday.repository.UserRepository;
 import com.ambrose.saigonbyday.repository.VerificationTokenRepository;
 import com.ambrose.saigonbyday.services.UserService;
@@ -11,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -69,6 +75,28 @@ public class UserServiceImpl implements UserService {
     return "Valid";
   }
 
+  @Override
+  public ResponseEntity<?> findUserByRole(Role role, int page, int limit) {
+    Pageable pageable = PageRequest.of(page - 1, limit);
+    List<User> userList = userRepository.findByRole(role, pageable);
+    List<UserDTO> result = new ArrayList<>();
+    convertListUserToListUserDTO(userList, result);
+
+    return ResponseUtil.getCollection(result,
+        HttpStatus.OK,
+        "Fetched successfully",
+        page,
+        limit,
+        userRepository.countAllByIsEnabledIsTrue());
+
+  }
+
+  private void convertListUserToListUserDTO(List<User> users, List<UserDTO> result){
+    for(User user : users){
+      UserDTO newUserDTO = (UserDTO) genericConverter.toDTO(user, UserDTO.class);
+      result.add(newUserDTO);
+    }
+  }
 
 
 }

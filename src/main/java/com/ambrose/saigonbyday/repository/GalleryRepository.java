@@ -19,6 +19,8 @@ public interface GalleryRepository extends JpaRepository<Gallery, String> {
 
   List<Gallery> findAllBy(Pageable pageable);
 
+  Gallery findByDestinationId(Long id);
+
   List<Gallery> findAllByStatusIsTrue(Pageable pageable);
   Long countAllByStatusIsTrue();
 

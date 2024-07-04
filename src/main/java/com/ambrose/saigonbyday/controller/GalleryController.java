@@ -49,6 +49,11 @@ public class GalleryController {
     return galleryService.findById(id);
   }
 
+  @GetMapping("/find-by-destination-id/{id}")
+  //@PreAuthorize("hasAuthority('CUSTOMER')")
+  public ResponseEntity<?> getGalleryByDestinationId(@PathVariable(name = "id") Long id){
+    return galleryService.findByDestinationId(id);
+  }
 
   @GetMapping("/find-all")
   //@PreAuthorize("hasAuthority('CUSTOMER')")
