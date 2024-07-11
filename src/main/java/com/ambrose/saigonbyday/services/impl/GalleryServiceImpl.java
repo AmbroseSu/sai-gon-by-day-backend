@@ -99,6 +99,22 @@ public class GalleryServiceImpl implements GalleryService {
   }
 
   @Override
+  public ResponseEntity<?> findAll(int page, int limit) {
+    Pageable pageable = PageRequest.of(page - 1, limit);
+    List<Gallery> entities = galleryRepository.findAllBy(pageable);
+    List<GalleryDTO> result = new ArrayList<>();
+
+    convertListGalleryToListGalleryDTO(entities, result);
+
+    return ResponseUtil.getCollection(result,
+        HttpStatus.OK,
+        "Fetched successfully",
+        page,
+        limit,
+        galleryRepository.countAllByStatusIsTrue());
+  }
+
+  @Override
   public Boolean checkExist(Long id) {
     Gallery gallery = galleryRepository.findById(id);
     return gallery != null;
@@ -111,4 +127,14 @@ public class GalleryServiceImpl implements GalleryService {
     }
   }
 
+  @Override
+  public ResponseEntity<?> findByDestinationId(Long id) {
+    Gallery gallery = galleryRepository.findByDestinationId(id);
+    if (gallery != null){
+      GalleryDTO result = (GalleryDTO) genericConverter.toDTO(gallery, GalleryDTO.class);
+      return ResponseUtil.getObject(result, HttpStatus.OK, "Fetched successfully");
+    }else{
+      return ResponseUtil.error("Gallery not found", "Cannot Find Gallery", HttpStatus.NOT_FOUND);
+    }
+  }
 }

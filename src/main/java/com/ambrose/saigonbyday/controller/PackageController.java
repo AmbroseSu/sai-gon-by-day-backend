@@ -2,8 +2,8 @@ package com.ambrose.saigonbyday.controller;
 
 
 import com.ambrose.saigonbyday.config.ResponseUtil;
-import com.ambrose.saigonbyday.dto.GalleryDTO;
-import com.ambrose.saigonbyday.services.GalleryService;
+import com.ambrose.saigonbyday.dto.PackageDTO;
+import com.ambrose.saigonbyday.services.PackageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,54 +20,49 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/gallery")
+@RequestMapping("/api/v1/package")
 @RequiredArgsConstructor
 @PreAuthorize("hasAuthority('CUSTOMER')")
-public class GalleryController {
+public class PackageController {
 
   @Autowired
-  private GalleryService galleryService;
+  private PackageService packageService;
 
   @PostMapping("/save")
-  public ResponseEntity<?> saveGallery(@RequestBody GalleryDTO galleryDTO){
-    return galleryService.save(galleryDTO);
+  public ResponseEntity<?> savePackage(@RequestBody PackageDTO packageDTO){
+    return packageService.save(packageDTO);
   }
 
-  @PutMapping ("update/{id}")
-  public ResponseEntity<?> updateGellery(@RequestBody GalleryDTO galleryDTO, @PathVariable(name = "id") Long id){
-    if (galleryService.checkExist(id)){
-      galleryDTO.setId(id);
-      return galleryService.save(galleryDTO);
+  @PutMapping("update/{id}")
+  public ResponseEntity<?> updatePackage(@RequestBody PackageDTO packageDTO, @PathVariable(name = "id") Long id){
+    if (packageService.checkExist(id)){
+      packageDTO.setId(id);
+      return packageService.save(packageDTO);
     }
     return ResponseUtil.error("Not Found", "Gallery not exits", HttpStatus.NOT_FOUND);
-
   }
 
   @GetMapping("/find-id/{id}")
-  //@PreAuthorize("hasAuthority('CUSTOMER')")
-  public ResponseEntity<?> getGalleryById(@PathVariable(name = "id") Long id){
-    return galleryService.findById(id);
+  public ResponseEntity<?> getPackageById(@PathVariable(name = "id") Long id){
+    return packageService.findById(id);
   }
 
-  @GetMapping("/find-by-destination-id/{id}")
+  @GetMapping("/find-all-true")
   //@PreAuthorize("hasAuthority('CUSTOMER')")
-  public ResponseEntity<?> getGalleryByDestinationId(@PathVariable(name = "id") Long id){
-    return galleryService.findByDestinationId(id);
+  public ResponseEntity<?> getAllPackageByStatusTrue(@RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int limit){
+    return packageService.findAllByStatusTrue(page, limit);
   }
 
   @GetMapping("/find-all")
-  //@PreAuthorize("hasAuthority('CUSTOMER')")
-  public ResponseEntity<?> getAllGalleryByStatusTrue(@RequestParam(defaultValue = "1") int page,
-                                                     @RequestParam(defaultValue = "10") int limit){
-    return galleryService.findAllByStatusTrue(page, limit);
+  public ResponseEntity<?> getAllPackage(@RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int limit){
+    return packageService.findAll(page,limit);
   }
 
   @DeleteMapping("/delete/{id}")
   public ResponseEntity<?> changeStatus(@PathVariable(name = "id") Long id){
-    return galleryService.changeStatus(id);
+    return packageService.changeStatus(id);
   }
-
-
-
 
 }

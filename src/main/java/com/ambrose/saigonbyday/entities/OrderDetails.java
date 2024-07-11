@@ -1,5 +1,6 @@
 package com.ambrose.saigonbyday.entities;
 
+import com.ambrose.saigonbyday.entities.enums.Status;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,5 +26,7 @@ public class OrderDetails {
   @JoinColumn(name = "packageInDayId")
   private PackageInDay packageInDay;
 
+  private Status is_status;
+  private Boolean status;
   private Float price;
 }

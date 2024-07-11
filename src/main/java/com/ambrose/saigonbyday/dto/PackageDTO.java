@@ -8,10 +8,17 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CityDTO {
+public class PackageDTO {
   private Long id;
-  private String code;
+
   private String name;
+  private String description;
   private Boolean status;
+  private String shortDescription;
+  private Long startTime;
+  private Long endTime;
+
+  private List<Long> packageInDayIds;
+
   private List<Long> destinationIds;
 }

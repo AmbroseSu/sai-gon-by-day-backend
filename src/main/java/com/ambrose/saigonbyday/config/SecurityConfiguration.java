@@ -35,7 +35,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
     http.csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(request -> request.requestMatchers("api/v1/auth/**",
+        .authorizeHttpRequests(request -> request.requestMatchers("api/v1/auth/**", "api/v1/user/**",
                 "/swagger-ui/**",
                 "/swagger-ui.html",
                 "swagger-resources/**",
@@ -45,8 +45,8 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 "oauth2/**")
             .permitAll()
             //.requestMatchers("/api/v1/auth/signingoogle").authenticated()
-            .requestMatchers("/api/v1/admin/**").hasAnyAuthority(Role.ADMIN.name())
-            .requestMatchers("/api/v1/user/**").hasAnyAuthority(Role.CUSTOMER.name())
+            //.requestMatchers("/api/v1/admin/**").hasAnyAuthority(Role.ADMIN.name())
+            //.requestMatchers("/api/v1/user/**").hasAnyAuthority(Role.CUSTOMER.name())
             .anyRequest().authenticated())
 
         .oauth2Login(oauth2 -> oauth2

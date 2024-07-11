@@ -6,7 +6,7 @@ public interface GenericService<T> {
   ResponseEntity<?> findById(Long id);
 
   ResponseEntity<?> findAllByStatusTrue(int page, int limit);
-  //ResponseEntity<?> findAll(int page, int limit);
+  ResponseEntity<?> findAll(int page, int limit);
 
   ResponseEntity<?> save(T t);
 

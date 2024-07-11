@@ -1,6 +1,7 @@
 package com.ambrose.saigonbyday.entities;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,8 +21,9 @@ public class Servicee {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
   private String name;
+  @Column(length = 20000)
   private String description;
-  private Long startDate;
+  private Long startTime;
   private Long endTime;
   private Float price;
   private String category;

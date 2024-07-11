@@ -1,5 +1,6 @@
 package com.ambrose.saigonbyday.dto;
 
+import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,10 +9,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CityDTO {
+public class PackageInDayDTO {
   private Long id;
-  private String code;
-  private String name;
+  private Date date;
+  private Long price;
   private Boolean status;
-  private List<Long> destinationIds;
+  private int numberAttendance;
+  private List<Long> orderIds;
+  private Long packageId;
 }
