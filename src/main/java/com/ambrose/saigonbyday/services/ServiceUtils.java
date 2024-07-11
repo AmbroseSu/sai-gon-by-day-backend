@@ -8,6 +8,7 @@ import com.ambrose.saigonbyday.repository.OrderRepository;
 import com.ambrose.saigonbyday.repository.PackageInDayRepository;
 import com.ambrose.saigonbyday.repository.PackageInDestinationRepository;
 import com.ambrose.saigonbyday.repository.PackageRepository;
+import com.ambrose.saigonbyday.repository.PaymentHistoryRepository;
 import com.ambrose.saigonbyday.repository.ServiceRepository;
 import com.ambrose.saigonbyday.repository.UserRepository;
 import java.lang.reflect.Field;
@@ -74,14 +75,14 @@ public class ServiceUtils {
   public static void validateServiceIds(List<Long> serviceIds,  ServiceRepository serviceRepository) {
     for (Long serviceId : serviceIds) {
       if (serviceRepository.findById(serviceId) == null) {
-        errors.add("Destination with id " + serviceId + " does not exist");
+        errors.add("Service with id " + serviceId + " does not exist");
       }
     }
   }
   public static void validatePackageIds(List<Long> packageIds,  PackageRepository packageRepository) {
     for (Long packageId : packageIds) {
       if (packageRepository.findById(packageId) == null) {
-        errors.add("Destination with id " + packageId + " does not exist");
+        errors.add("Package with id " + packageId + " does not exist");
       }
     }
   }
@@ -89,14 +90,14 @@ public class ServiceUtils {
   public static void validatePackageInDestinationIds(List<Long> packageInDestinationIds,  PackageInDestinationRepository packageInDestinationRepository) {
     for (Long packageInDestinationId : packageInDestinationIds) {
       if (packageInDestinationRepository.findById(packageInDestinationId) == null) {
-        errors.add("Destination with id " + packageInDestinationId + " does not exist");
+        errors.add("Package In Destination with id " + packageInDestinationId + " does not exist");
       }
     }
   }
   public static void validateCityIds(List<Long> cityIds,  CityRepository cityRepository) {
     for (Long cityId : cityIds) {
       if (cityRepository.findById(cityId) == null) {
-        errors.add("Destination with id " + cityId + " does not exist");
+        errors.add("City with id " + cityId + " does not exist");
       }
     }
   }
@@ -104,7 +105,7 @@ public class ServiceUtils {
   public static void validateGalleryIds(List<Long> galleryIds,  GalleryRepository galleryRepository) {
     for (Long galleryId : galleryIds) {
       if (galleryRepository.findById(galleryId) == null) {
-        errors.add("Destination with id " + galleryId + " does not exist");
+        errors.add("Gallery with id " + galleryId + " does not exist");
       }
     }
   }
@@ -112,7 +113,7 @@ public class ServiceUtils {
   public static void validateUserIds(List<Long> userIds,  UserRepository userRepository) {
     for (Long userId : userIds) {
       if (userRepository.findUserById(userId) == null) {
-        errors.add("Destination with id " + userId + " does not exist");
+        errors.add("User with id " + userId + " does not exist");
       }
     }
   }
@@ -128,6 +129,14 @@ public class ServiceUtils {
     for (Long orderId : orderIds) {
       if (orderRepository.findById(orderId) == null) {
         errors.add("Order with id " + orderId + " does not exist");
+      }
+    }
+  }
+
+  public static void validatePaymentHistoryIds(List<Long> paymentHistoryIds, PaymentHistoryRepository paymentHistoryRepository) {
+    for (Long paymentHistoryId : paymentHistoryIds) {
+      if (paymentHistoryRepository.findById(paymentHistoryId) == null) {
+        errors.add("Payment History with id " + paymentHistoryId + " does not exist");
       }
     }
   }

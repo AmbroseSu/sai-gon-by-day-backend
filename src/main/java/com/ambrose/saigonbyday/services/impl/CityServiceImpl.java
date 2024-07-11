@@ -11,14 +11,24 @@ import com.ambrose.saigonbyday.repository.CityRepository;
 import com.ambrose.saigonbyday.repository.DestinationRepository;
 import com.ambrose.saigonbyday.services.CityService;
 import com.ambrose.saigonbyday.services.ServiceUtils;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -195,6 +205,52 @@ public class CityServiceImpl implements CityService {
     for (City city : cities){
       CityDTO newCityDTO = convertCityToCityDTO(city);
       result.add(newCityDTO);
+    }
+  }
+
+
+  @Override
+  public void saveCitiesFromExcel(String filePath) throws IOException{
+    List<CityDTO> cityDTOList = readExcelFile(filePath);
+    for (CityDTO cityDTO : cityDTOList) {
+      City city = (City) genericConverter.toEntity(cityDTO, City.class);
+      cityRepository.save(city);
+    }
+  }
+
+  private List<CityDTO> readExcelFile(String filePath) throws IOException {
+    List<CityDTO> cityDTOList = new ArrayList<>();
+    try (InputStream inputStream = new FileInputStream(filePath)) {
+      Workbook workbook = new XSSFWorkbook(inputStream);
+      Sheet sheet = workbook.getSheetAt(0);
+      for (Row row : sheet) {
+        if (row.getRowNum() == 0) {
+          // Skip the header row
+          continue;
+        }
+
+        CityDTO cityDTO = new CityDTO();
+        cityDTO.setName(getCellValue(row.getCell(0)));
+        cityDTO.setCode(getCellValue(row.getCell(1)));
+        cityDTO.setStatus(true); // set default status
+
+        cityDTOList.add(cityDTO);
+      }
+    }
+    return cityDTOList;
+
+
+  }
+  private String getCellValue(Cell cell) {
+    if (cell == null) {
+      return null;
+    }
+    if (cell.getCellType() == CellType.STRING) {
+      return cell.getStringCellValue();
+    } else if (cell.getCellType() == CellType.NUMERIC) {
+      return String.valueOf(cell.getNumericCellValue());
+    } else {
+      return null;
     }
   }
 

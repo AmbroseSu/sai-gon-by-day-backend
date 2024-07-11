@@ -24,7 +24,6 @@ public class Order {
   private Long id;
   private Float totalPrice;
   private Long date;
-  private Status is_status;
   private Boolean status;
   @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
   private PaymentHistory paymentHistory;

@@ -106,7 +106,7 @@ public class PackageServiceImpl implements PackageService {
         ServiceUtils.validatePackageInDayIds(requestPackageInDayIds, packageInDayRepository);
       }
       if (requestDestinationIds != null){
-        ServiceUtils.validatePackageInDestinationIds(requestDestinationIds, packageInDestinationRepository);
+        ServiceUtils.validateDestinationIds(requestDestinationIds, destinationRepository);
       }
       if (!ServiceUtils.errors.isEmpty()){
         throw new CustomValidationException(ServiceUtils.errors);

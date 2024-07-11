@@ -3,6 +3,7 @@ package com.ambrose.saigonbyday.entities;
 import com.ambrose.saigonbyday.entities.enums.Gender;
 import com.ambrose.saigonbyday.entities.enums.Role;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -33,6 +34,8 @@ public class User implements UserDetails {
   private String phone;
   private Gender gender;
   private Role role;
+  @Column(length = 2000)
+  private String FCMToken;
   private String DOB;
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private List<Order> orders;

@@ -20,7 +20,8 @@ public class PackageInDay {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
   private Date date;
-  private Long price;
+  private Float price;
+  private String code;
   private Boolean status;
   private int numberAttendance;
   @OneToMany(mappedBy = "packageInDay")

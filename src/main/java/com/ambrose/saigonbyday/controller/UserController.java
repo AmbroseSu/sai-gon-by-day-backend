@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('CUSTOMER')")
+//@PreAuthorize("hasAuthority('CUSTOMER')")
 public class UserController {
   //private final UserService userService;
   @Autowired
