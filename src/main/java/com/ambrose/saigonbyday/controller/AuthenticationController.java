@@ -13,6 +13,9 @@ import com.ambrose.saigonbyday.repository.VerificationTokenRepository;
 import com.ambrose.saigonbyday.services.AuthenticationService;
 import com.ambrose.saigonbyday.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -113,11 +117,35 @@ public class AuthenticationController {
     return authenticationService.signin(signinRequest);
   }
 
-  @GetMapping("/signingoogle")
-  public ResponseEntity<?> signinGoogle(OAuth2AuthenticationToken auth2AuthenticationToken){
+//  @GetMapping("/signingoogle")
+//  public ResponseEntity<?> signinGoogle(OAuth2AuthenticationToken auth2AuthenticationToken){
+//    String email = auth2AuthenticationToken.getPrincipal().getAttribute("email");
+//    return authenticationService.signinGoogle(email);
+//  }
+@GetMapping("/signingoogle")
+public ResponseEntity<?> signinGoogle(HttpServletRequest request, OAuth2AuthenticationToken auth2AuthenticationToken) {
+  if (auth2AuthenticationToken != null) {
     String email = auth2AuthenticationToken.getPrincipal().getAttribute("email");
     return authenticationService.signinGoogle(email);
+  } else {
+    // Chuyển hướng đến trang đăng nhập Google OAuth2
+    // Bạn có thể sử dụng HttpServletResponse để thực hiện chuyển hướng
+    // hoặc sử dụng một lớp helper để xây dựng URL đăng nhập và trả về ResponseEntity với trạng thái 302
+    String redirectUrl = "/oauth2/authorization/google"; // Thay thế bằng URL đăng nhập Google OAuth2 của bạn
+    return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectUrl)).build();
   }
+}
+
+//  @GetMapping("/api/v1/auth/signingoogle")
+//  public Object signinGoogle(HttpServletResponse response) throws IOException {
+//    OAuth2AuthenticationToken authentication = (OAuth2AuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+//    if (authentication != null) {
+//      String email = authentication.getPrincipal().getAttribute("email");
+//      return authenticationService.signinGoogle(email);
+//    } else {
+//      return new RedirectView("http://localhost:8080/oauth2/authorization/google", true);
+//    }
+//  }
 
   @GetMapping("/token-google")
   public ResponseEntity<?> tokenGoogle(OAuth2AuthenticationToken auth2AuthenticationToken) {

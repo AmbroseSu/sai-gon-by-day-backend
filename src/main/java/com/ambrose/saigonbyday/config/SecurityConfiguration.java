@@ -3,6 +3,7 @@ package com.ambrose.saigonbyday.config;
 
 import com.ambrose.saigonbyday.entities.enums.Role;
 import com.ambrose.saigonbyday.services.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,8 +52,9 @@ public class SecurityConfiguration implements WebMvcConfigurer {
 
 //        .oauth2Login(oauth2 -> oauth2
 //            .defaultSuccessUrl("/api/v1/auth/signingoogle", false))
-        .oauth2Login(oauth2 -> oauth2.successHandler((request, response, authentication) -> {
-        }))
+        .oauth2Login(oauth2 -> oauth2
+            .successHandler(customAuthenticationSuccessHandler())
+        )
 
 
   //      .oauth2Login(Customizer.withDefaults())
@@ -69,6 +71,12 @@ public class SecurityConfiguration implements WebMvcConfigurer {
   private AuthenticationEntryPoint authenticationEntryPoint() {
     return new HttpStatusEntryPoint(HttpStatus.FORBIDDEN);
   }
+  @Bean
+  public CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+    return new CustomAuthenticationSuccessHandler();
+  }
+
+
 
   private AccessDeniedHandler accessDeniedHandler() {
     AccessDeniedHandlerImpl accessDeniedHandler = new AccessDeniedHandlerImpl();
