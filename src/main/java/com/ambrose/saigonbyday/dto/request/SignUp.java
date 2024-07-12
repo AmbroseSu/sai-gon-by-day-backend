@@ -13,5 +13,6 @@ public class SignUp {
   String password;
   String address;
   Gender gender;
+  String FCMToken;
   //Role role;
 }

@@ -24,7 +24,6 @@ public class UserDTO {
   private String phone;
   private Gender gender;
   private Role role;
-  private String FCMToken;
   private String DOB;
   private List<Order> orders;
 }

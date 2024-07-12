@@ -226,6 +226,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       user.setGender(signUp.getGender());
       //user.setGender(signUp.getGender());
       user.setRole(Role.CUSTOMER);
+      user.setFCMToken(signUp.getFCMToken());
       UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
       userRepository.save(user);
 
