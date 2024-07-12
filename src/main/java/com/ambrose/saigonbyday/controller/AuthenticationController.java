@@ -117,24 +117,24 @@ public class AuthenticationController {
     return authenticationService.signin(signinRequest);
   }
 
-//  @GetMapping("/signingoogle")
-//  public ResponseEntity<?> signinGoogle(OAuth2AuthenticationToken auth2AuthenticationToken){
-//    String email = auth2AuthenticationToken.getPrincipal().getAttribute("email");
-//    return authenticationService.signinGoogle(email);
-//  }
-@GetMapping("/signingoogle")
-public ResponseEntity<?> signinGoogle(HttpServletRequest request, OAuth2AuthenticationToken auth2AuthenticationToken) {
-  if (auth2AuthenticationToken != null) {
+  @GetMapping("/signingoogle")
+  public ResponseEntity<?> signinGoogle(OAuth2AuthenticationToken auth2AuthenticationToken){
     String email = auth2AuthenticationToken.getPrincipal().getAttribute("email");
     return authenticationService.signinGoogle(email);
-  } else {
-    // Chuyển hướng đến trang đăng nhập Google OAuth2
-    // Bạn có thể sử dụng HttpServletResponse để thực hiện chuyển hướng
-    // hoặc sử dụng một lớp helper để xây dựng URL đăng nhập và trả về ResponseEntity với trạng thái 302
-    String redirectUrl = "/oauth2/authorization/google"; // Thay thế bằng URL đăng nhập Google OAuth2 của bạn
-    return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectUrl)).build();
   }
-}
+//@GetMapping("/signingoogle")
+//public ResponseEntity<?> signinGoogle(HttpServletRequest request, OAuth2AuthenticationToken auth2AuthenticationToken) {
+//  if (auth2AuthenticationToken != null) {
+//    String email = auth2AuthenticationToken.getPrincipal().getAttribute("email");
+//    return authenticationService.signinGoogle(email);
+//  } else {
+//    // Chuyển hướng đến trang đăng nhập Google OAuth2
+//    // Bạn có thể sử dụng HttpServletResponse để thực hiện chuyển hướng
+//    // hoặc sử dụng một lớp helper để xây dựng URL đăng nhập và trả về ResponseEntity với trạng thái 302
+//    String redirectUrl = "/oauth2/authorization/google"; // Thay thế bằng URL đăng nhập Google OAuth2 của bạn
+//    return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectUrl)).build();
+//  }
+//}
 
 //  @GetMapping("/api/v1/auth/signingoogle")
 //  public Object signinGoogle(HttpServletResponse response) throws IOException {
