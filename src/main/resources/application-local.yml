@@ -1,19 +1,19 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/SaiGonByDay
-    username: postgres
-    password: sa
-    driver-class-name: org.postgresql.Driver
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/SaiGonByDay
+#    username: postgres
+#    password: sa
+#    driver-class-name: org.postgresql.Driver
 #  datasource:
 #    url: jdbc:postgresql://instantly-settling-pika.a1.pgedge.io/tripbyday?sslmode=require
 #    username: app
 #    password: 5eyi2301L6d0N3ZMtBv3Xh9A
 #    driver-class-name: org.postgresql.Driver
-#  datasource:
-#    url: jdbc:postgresql://ep-morning-sun-a1di1oc6.ap-southeast-1.aws.neon.tech/TripByDay?sslmode=require
-#    username: TripByDay_owner
-#    password: eP1KtxEH6RyN
-#    driver-class-name: org.postgresql.Driver
+  datasource:
+    url: jdbc:postgresql://ep-morning-sun-a1di1oc6.ap-southeast-1.aws.neon.tech/TripByDay?sslmode=require
+    username: TripByDay_owner
+    password: eP1KtxEH6RyN
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
