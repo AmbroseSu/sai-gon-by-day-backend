@@ -50,8 +50,8 @@ public class SecurityConfiguration implements WebMvcConfigurer {
             //.requestMatchers("/api/v1/user/**").hasAnyAuthority(Role.CUSTOMER.name())
             .anyRequest().authenticated())
 
-        .oauth2Login(oauth2 -> oauth2
-            .defaultSuccessUrl("/api/v1/auth/signingoogle", false))
+//        .oauth2Login(oauth2 -> oauth2
+//            .defaultSuccessUrl("/api/v1/auth/signingoogle", false))
 
 
 
