@@ -7,6 +7,6 @@ public interface OrderService extends GenericService<OrderDTO>{
 
   ResponseEntity<?> confirmOrder(OrderDTO orderDTO);
 
-  ResponseEntity<?> findPackageInDaySalebyUserId(Long userId);
+  ResponseEntity<?> findPackageInDaySalebyUserId(Long userId, int page, int limit);
 
 }

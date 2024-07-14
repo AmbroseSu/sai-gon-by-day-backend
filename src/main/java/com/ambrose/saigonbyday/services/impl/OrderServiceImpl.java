@@ -5,8 +5,10 @@ import com.ambrose.saigonbyday.config.ResponseUtil;
 import com.ambrose.saigonbyday.converter.GenericConverter;
 import com.ambrose.saigonbyday.dto.DestinationDTO;
 import com.ambrose.saigonbyday.dto.OrderDTO;
+import com.ambrose.saigonbyday.dto.PackageInDaySaleDTO;
 import com.ambrose.saigonbyday.entities.City;
 import com.ambrose.saigonbyday.entities.Destination;
+import com.ambrose.saigonbyday.entities.Gallery;
 import com.ambrose.saigonbyday.entities.Order;
 import com.ambrose.saigonbyday.entities.OrderDetails;
 import com.ambrose.saigonbyday.entities.Package;
@@ -16,17 +18,22 @@ import com.ambrose.saigonbyday.entities.enums.Status;
 import com.ambrose.saigonbyday.repository.OrderDetailsRepository;
 import com.ambrose.saigonbyday.repository.OrderRepository;
 import com.ambrose.saigonbyday.repository.PackageInDayRepository;
+import com.ambrose.saigonbyday.repository.PackageInDestinationRepository;
 import com.ambrose.saigonbyday.repository.PaymentHistoryRepository;
 import com.ambrose.saigonbyday.repository.UserRepository;
 import com.ambrose.saigonbyday.services.GenericService;
 import com.ambrose.saigonbyday.services.OrderService;
 import com.ambrose.saigonbyday.services.ServiceUtils;
+import java.awt.event.FocusAdapter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Or;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -42,6 +49,7 @@ public class OrderServiceImpl implements OrderService {
   private final OrderRepository orderRepository;
   private final GenericConverter genericConverter;
   private final OrderDetailsRepository orderDetailsRepository;
+  private final PackageInDestinationRepository packageInDestinationRepository;
 
   @Override
   public ResponseEntity<?> findById(Long id) {
@@ -243,21 +251,71 @@ public class OrderServiceImpl implements OrderService {
   }
 
   @Override
-  public ResponseEntity<?> findPackageInDaySalebyUserId(Long userId) {
+  public ResponseEntity<?> findPackageInDaySalebyUserId(Long userId, int page, int limit) {
     try{
+      Pageable pageable = PageRequest.of(page - 1, limit);
       Order order = orderRepository.findOrderByUserId(userId);
+      List<PackageInDaySaleDTO> packageInDaySaleDTOS = new ArrayList<>();
       if(order != null){
         List<PackageInDay> packageInDays = orderDetailsRepository.findAllByIs_statusAndOrderId(Status.CART,
-            order.getId());
+            order.getId(), pageable);
+
+        for (PackageInDay packageInDay : packageInDays){
+          packageInDaySaleDTOS.add(convertToPackageInDaySaleDTO(packageInDay));
+        }
 
       }
 
-      return null;
+      return ResponseUtil.getCollection(packageInDaySaleDTOS,
+          HttpStatus.OK,
+          "Fetched successfully",
+          page,
+          limit,
+          packageInDayRepository.countAllByStatusIsTrue());
 
 
     }
     catch (Exception ex) {
        return ResponseUtil.error(ex.getMessage(), "Confirm Failed", HttpStatus.BAD_REQUEST);
     }
+  }
+
+  private PackageInDaySaleDTO convertToPackageInDaySaleDTO(PackageInDay packageInDay){
+    PackageInDaySaleDTO packageInDaySaleDTO = new PackageInDaySaleDTO();
+    packageInDaySaleDTO.setId(packageInDay.getId());
+    packageInDaySaleDTO.setDate(packageInDay.getDate());
+    packageInDaySaleDTO.setPrice(packageInDay.getPrice());
+    packageInDaySaleDTO.setNumberAttendance(packageInDay.getNumberAttendance());
+
+    Package packagee = packageInDay.getPackagee();
+    if(packagee != null){
+      packageInDaySaleDTO.setPackageName(packagee.getName());
+      packageInDaySaleDTO.setPackageDescription(packagee.getDescription());
+      packageInDaySaleDTO.setPackageShortDescription(
+          packagee.getShortDescription());
+      packageInDaySaleDTO.setPackageStartTime(packagee.getStartTime());
+      packageInDaySaleDTO.setPackageEndTime(packagee.getEndTime());
+      List<Destination> destinations = packageInDestinationRepository.findDestinationsByPackageId(packageInDay.getPackagee().getId());
+
+      List<String> galleries = new ArrayList<>();
+
+      for(Destination destination : destinations){
+        Gallery gallery = destination.getGallery();
+        if (gallery != null){
+          if(gallery.getImageNo1() != null){
+            galleries.add(gallery.getImageNo1());
+          }
+          if(gallery.getImageNo2() != null){
+            galleries.add(gallery.getImageNo2());
+          }
+          if(gallery.getImageNo3() != null){
+            galleries.add(gallery.getImageNo3());
+          }
+        }
+      }
+
+      packageInDaySaleDTO.setGalleryUrls(galleries);
+    }
+    return packageInDaySaleDTO;
   }
 }
