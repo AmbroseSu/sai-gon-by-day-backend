@@ -7,6 +7,7 @@ import com.ambrose.saigonbyday.config.ResponseUtil;
 import com.ambrose.saigonbyday.converter.GenericConverter;
 import com.ambrose.saigonbyday.dto.PackageInDayDTO;
 import com.ambrose.saigonbyday.dto.PackageInDaySaleDTO;
+import com.ambrose.saigonbyday.dto.request.PackageInDaySearchRequest;
 import com.ambrose.saigonbyday.entities.Destination;
 import com.ambrose.saigonbyday.entities.Gallery;
 import com.ambrose.saigonbyday.entities.Order;
@@ -18,13 +19,17 @@ import com.ambrose.saigonbyday.repository.OrderRepository;
 import com.ambrose.saigonbyday.repository.PackageInDayRepository;
 import com.ambrose.saigonbyday.repository.PackageInDestinationRepository;
 import com.ambrose.saigonbyday.repository.PackageRepository;
+import com.ambrose.saigonbyday.repository.specification.PackageInDaySpecification;
 import com.ambrose.saigonbyday.services.PackageInDayService;
 import com.ambrose.saigonbyday.services.ServiceUtils;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -241,10 +246,46 @@ public class PackageInDayServiceImpl implements PackageInDayService {
     }
   }
 
+  @Override
+  public ResponseEntity<?> findAllWithSearchSortFilter(PackageInDaySearchRequest packageInDaySearchRequest) {
+    try {
+      Sort.Direction direction = "asc".equalsIgnoreCase(packageInDaySearchRequest.getSortDirection()) ? Sort.Direction.ASC : Sort.Direction.DESC;
+      Specification<PackageInDay> packageInDaySpecification = Specification
+          .where(PackageInDaySpecification.hasPackageName(packageInDaySearchRequest.getPackageName()))
+          .and(PackageInDaySpecification.hasPriceBetween(packageInDaySearchRequest.getMinPrice(),
+              packageInDaySearchRequest.getMaxPrice()))
+          .and(PackageInDaySpecification.hasDate(packageInDaySearchRequest.getDate()))
+          .and(PackageInDaySpecification.hasNumberAttendanceBetween(
+              packageInDaySearchRequest.getMinAttendance(),
+              packageInDaySearchRequest.getMaxAttendance()))
+          .and(PackageInDaySpecification.hasCity(packageInDaySearchRequest.getCityName()));
+
+      Pageable pageable = PageRequest.of(
+          packageInDaySearchRequest.getPage(),
+          packageInDaySearchRequest.getLimit(),
+          Sort.by(direction, "price"));
+      Page<PackageInDay> packageInDays = packageInDayRepository.findAll(packageInDaySpecification, pageable);
+      List<PackageInDay> result = packageInDays.getContent();
+
+      return ResponseUtil.getCollection(result,
+          HttpStatus.OK,
+          "Fetched successfully",
+          packageInDaySearchRequest.getPage(),
+          packageInDaySearchRequest.getLimit(),
+          packageInDayRepository.countAllByStatusIsTrue());
+
+
+
+    } catch (Exception ex){
+      return ResponseUtil.error(ex.getMessage(),"Failed", HttpStatus.BAD_REQUEST);
+    }
+  }
+
   private PackageInDaySaleDTO convertToPackageInDaySaleDTO(PackageInDay packageInDay){
     PackageInDaySaleDTO packageInDaySaleDTO = new PackageInDaySaleDTO();
     packageInDaySaleDTO.setId(packageInDay.getId());
     packageInDaySaleDTO.setDate(packageInDay.getDate());
+    packageInDaySaleDTO.setCode(packageInDay.getCode());
     packageInDaySaleDTO.setPrice(packageInDay.getPrice());
     packageInDaySaleDTO.setNumberAttendance(packageInDay.getNumberAttendance());
 

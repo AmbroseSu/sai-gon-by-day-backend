@@ -3,6 +3,7 @@ package com.ambrose.saigonbyday.controller;
 
 import com.ambrose.saigonbyday.config.ResponseUtil;
 import com.ambrose.saigonbyday.dto.PackageInDayDTO;
+import com.ambrose.saigonbyday.dto.request.PackageInDaySearchRequest;
 import com.ambrose.saigonbyday.services.PackageInDayService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,11 @@ public class PackageInDayController {
   public ResponseEntity<?> getAllPackageInDaySale(@RequestParam(defaultValue = "1") int page,
       @RequestParam(defaultValue = "10") int limit){
     return packageInDayService.findAllSale(page,limit);
+  }
+
+  @PostMapping("/find-all-search")
+  public ResponseEntity<?> getAllPackageInDaySearch(@RequestBody PackageInDaySearchRequest packageInDaySearchRequest){
+    return packageInDayService.findAllWithSearchSortFilter(packageInDaySearchRequest);
   }
 
 }

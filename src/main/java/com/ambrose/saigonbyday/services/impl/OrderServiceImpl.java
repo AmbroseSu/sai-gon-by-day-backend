@@ -284,6 +284,7 @@ public class OrderServiceImpl implements OrderService {
     PackageInDaySaleDTO packageInDaySaleDTO = new PackageInDaySaleDTO();
     packageInDaySaleDTO.setId(packageInDay.getId());
     packageInDaySaleDTO.setDate(packageInDay.getDate());
+    packageInDaySaleDTO.setCode(packageInDay.getCode());
     packageInDaySaleDTO.setPrice(packageInDay.getPrice());
     packageInDaySaleDTO.setNumberAttendance(packageInDay.getNumberAttendance());
 

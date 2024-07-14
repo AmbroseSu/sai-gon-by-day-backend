@@ -42,4 +42,8 @@ public class PackageInDaySpecification {
     };
   }
 
+  public static Specification<PackageInDay> hasCity(String cityName) {
+    return (root, query, cb) -> cityName == null ? cb.conjunction() : cb.equal(root.join("packagee").join("packageInDestinations").join("destination").join("city").get("name"), cityName);
+  }
+
 }
