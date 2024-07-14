@@ -4,6 +4,7 @@ import com.ambrose.saigonbyday.config.ResponseUtil;
 import com.ambrose.saigonbyday.converter.GenericConverter;
 import com.ambrose.saigonbyday.dto.UpsertUserDTO;
 import com.ambrose.saigonbyday.dto.request.SignUp;
+import com.ambrose.saigonbyday.dto.request.SignUpGoogle;
 import com.ambrose.saigonbyday.dto.request.SigninRequest;
 import com.ambrose.saigonbyday.entities.User;
 import com.ambrose.saigonbyday.entities.VerificationToken;
@@ -145,6 +146,10 @@ public class AuthenticationController {
   }
 
 
+  @PostMapping("/save-infor-google")
+  public ResponseEntity<?> saveInforGoogle(@RequestBody SignUpGoogle signUpGoogle){
+    return authenticationService.saveInforGoogle(signUpGoogle);
+  }
 
 
 }

@@ -12,7 +12,7 @@ public class ServiceDTO {
   private Long id;
   private String name;
   private String description;
-  private Long startDate;
+  private Long startTime;
   private Long endTime;
   private Float price;
   private String category;

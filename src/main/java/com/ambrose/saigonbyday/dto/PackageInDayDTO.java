@@ -13,6 +13,7 @@ public class PackageInDayDTO {
   private Long id;
   private Date date;
   private Long price;
+  private String image;
   private Boolean status;
   private int numberAttendance;
   private List<Long> orderIds;

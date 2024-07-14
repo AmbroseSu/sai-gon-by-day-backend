@@ -265,9 +265,12 @@ public class PackageInDayServiceImpl implements PackageInDayService {
           packageInDaySearchRequest.getLimit(),
           Sort.by(direction, "price"));
       Page<PackageInDay> packageInDays = packageInDayRepository.findAll(packageInDaySpecification, pageable);
-      List<PackageInDay> result = packageInDays.getContent();
-
-      return ResponseUtil.getCollection(result,
+      List<PackageInDay> packageInDayList = packageInDays.getContent();
+      List<PackageInDaySaleDTO> packageInDaySaleDTOS = new ArrayList<>();
+      for (PackageInDay packageInDay : packageInDayList){
+        packageInDaySaleDTOS.add(convertToPackageInDaySaleDTO(packageInDay));
+      }
+      return ResponseUtil.getCollection(packageInDaySaleDTOS,
           HttpStatus.OK,
           "Fetched successfully",
           packageInDaySearchRequest.getPage(),

@@ -23,6 +23,7 @@ public class PackageInDay {
   private Float price;
   private String code;
   private Boolean status;
+  private String image;
   private int numberAttendance;
   @OneToMany(mappedBy = "packageInDay")
   private List<OrderDetails> orderDetails;
