@@ -64,5 +64,10 @@ public class PackageInDayController {
   public ResponseEntity<?> changeStatus(@PathVariable(name = "id") Long id){
     return packageInDayService.changeStatus(id);
   }
+  @GetMapping("/find-all-sale")
+  public ResponseEntity<?> getAllPackageInDaySale(@RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int limit){
+    return packageInDayService.findAllSale(page,limit);
+  }
 
 }

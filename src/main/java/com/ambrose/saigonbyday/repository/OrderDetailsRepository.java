@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,4 +39,8 @@ public interface OrderDetailsRepository extends JpaRepository<OrderDetails, Stri
   @Query("SELECT od FROM OrderDetails od WHERE od.order.id = :orderId AND od.is_status = :status")
   List<OrderDetails> findByOrderIdAndIs_status(@Param("orderId") Long orderId, @Param("status") Status status);
 
+  @Query("SELECT pid FROM OrderDetails od "
+      + "JOIN PackageInDay pid ON od.packageInDay.id = pid.id "
+      + "WHERE od.order.id = :orderId AND od.is_status = :status")
+  List<PackageInDay> findAllByIs_statusAndOrderId(@Param("status") Status status, @Param("orderId") Long orderId);
 }

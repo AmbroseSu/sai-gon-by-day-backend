@@ -69,10 +69,6 @@ public class SecurityConfiguration implements WebMvcConfigurer {
   private AuthenticationEntryPoint authenticationEntryPoint() {
     return new HttpStatusEntryPoint(HttpStatus.FORBIDDEN);
   }
-  @Bean
-  public CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler() {
-    return new CustomAuthenticationSuccessHandler();
-  }
 
 
 

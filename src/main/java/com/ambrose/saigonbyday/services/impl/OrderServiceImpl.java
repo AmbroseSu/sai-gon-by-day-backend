@@ -241,4 +241,23 @@ public class OrderServiceImpl implements OrderService {
       return ResponseUtil.error(ex.getMessage(), "Confirm Failed", HttpStatus.BAD_REQUEST);
     }
   }
+
+  @Override
+  public ResponseEntity<?> findPackageInDaySalebyUserId(Long userId) {
+    try{
+      Order order = orderRepository.findOrderByUserId(userId);
+      if(order != null){
+        List<PackageInDay> packageInDays = orderDetailsRepository.findAllByIs_statusAndOrderId(Status.CART,
+            order.getId());
+
+      }
+
+      return null;
+
+
+    }
+    catch (Exception ex) {
+       return ResponseUtil.error(ex.getMessage(), "Confirm Failed", HttpStatus.BAD_REQUEST);
+    }
+  }
 }

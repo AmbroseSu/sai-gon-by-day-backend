@@ -6,6 +6,9 @@ import com.ambrose.saigonbyday.config.CustomValidationException;
 import com.ambrose.saigonbyday.config.ResponseUtil;
 import com.ambrose.saigonbyday.converter.GenericConverter;
 import com.ambrose.saigonbyday.dto.PackageInDayDTO;
+import com.ambrose.saigonbyday.dto.PackageInDaySaleDTO;
+import com.ambrose.saigonbyday.entities.Destination;
+import com.ambrose.saigonbyday.entities.Gallery;
 import com.ambrose.saigonbyday.entities.Order;
 import com.ambrose.saigonbyday.entities.OrderDetails;
 import com.ambrose.saigonbyday.entities.Package;
@@ -13,6 +16,7 @@ import com.ambrose.saigonbyday.entities.PackageInDay;
 import com.ambrose.saigonbyday.repository.OrderDetailsRepository;
 import com.ambrose.saigonbyday.repository.OrderRepository;
 import com.ambrose.saigonbyday.repository.PackageInDayRepository;
+import com.ambrose.saigonbyday.repository.PackageInDestinationRepository;
 import com.ambrose.saigonbyday.repository.PackageRepository;
 import com.ambrose.saigonbyday.services.PackageInDayService;
 import com.ambrose.saigonbyday.services.ServiceUtils;
@@ -34,7 +38,7 @@ public class PackageInDayServiceImpl implements PackageInDayService {
   private final OrderRepository orderRepository;
   private final PackageInDayRepository packageInDayRepository;
   private final OrderDetailsRepository orderDetailsRepository;
-
+  private final PackageInDestinationRepository packageInDestinationRepository;
 
   @Override
   public ResponseEntity<?> findById(Long id) {
@@ -215,4 +219,68 @@ public class PackageInDayServiceImpl implements PackageInDayService {
     PackageInDay packageInDay = packageInDayRepository.findById(id);
     return packageInDay != null;
   }
+
+  @Override
+  public ResponseEntity<?> findAllSale(int page, int limit) {
+    try{
+      Pageable pageable = PageRequest.of(page - 1, limit);
+      List<PackageInDay> packageInDays = packageInDayRepository.findAllByStatusIsTrue(pageable);
+      List<PackageInDaySaleDTO> packageInDaySaleDTOS = new ArrayList<>();
+      for (PackageInDay packageInDay : packageInDays){
+        packageInDaySaleDTOS.add(convertToPackageInDaySaleDTO(packageInDay));
+      }
+      return ResponseUtil.getCollection(packageInDaySaleDTOS,
+          HttpStatus.OK,
+          "Fetched successfully",
+          page,
+          limit,
+          packageInDayRepository.countAllByStatusIsTrue());
+    }
+    catch (Exception ex){
+      return ResponseUtil.error(ex.getMessage(),"Failed", HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  private PackageInDaySaleDTO convertToPackageInDaySaleDTO(PackageInDay packageInDay){
+    PackageInDaySaleDTO packageInDaySaleDTO = new PackageInDaySaleDTO();
+    packageInDaySaleDTO.setId(packageInDay.getId());
+    packageInDaySaleDTO.setDate(packageInDay.getDate());
+    packageInDaySaleDTO.setPrice(packageInDay.getPrice());
+    packageInDaySaleDTO.setNumberAttendance(packageInDay.getNumberAttendance());
+
+    Package packagee = packageInDay.getPackagee();
+    if(packagee != null){
+      packageInDaySaleDTO.setPackageName(packagee.getName());
+      packageInDaySaleDTO.setPackageDescription(packagee.getDescription());
+      packageInDaySaleDTO.setPackageShortDescription(
+          packagee.getShortDescription());
+      packageInDaySaleDTO.setPackageStartTime(packagee.getStartTime());
+      packageInDaySaleDTO.setPackageEndTime(packagee.getEndTime());
+      List<Destination> destinations = packageInDestinationRepository.findDestinationsByPackageId(packageInDay.getPackagee().getId());
+
+      List<String> galleries = new ArrayList<>();
+
+      for(Destination destination : destinations){
+        Gallery gallery = destination.getGallery();
+        if (gallery != null){
+          if(gallery.getImageNo1() != null){
+            galleries.add(gallery.getImageNo1());
+          }
+          if(gallery.getImageNo2() != null){
+            galleries.add(gallery.getImageNo2());
+          }
+          if(gallery.getImageNo3() != null){
+            galleries.add(gallery.getImageNo3());
+          }
+        }
+      }
+
+      packageInDaySaleDTO.setGalleryUrls(galleries);
+    }
+    return packageInDaySaleDTO;
+  }
+
+
+
+
 }
