@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/gallery")
 @RequiredArgsConstructor
 @PreAuthorize("hasAuthority('CUSTOMER')")
+@CrossOrigin
 public class GalleryController {
 
   @Autowired
@@ -55,11 +57,18 @@ public class GalleryController {
     return galleryService.findByDestinationId(id);
   }
 
-  @GetMapping("/find-all")
+  @GetMapping("/find-all-true")
   //@PreAuthorize("hasAuthority('CUSTOMER')")
   public ResponseEntity<?> getAllGalleryByStatusTrue(@RequestParam(defaultValue = "1") int page,
                                                      @RequestParam(defaultValue = "10") int limit){
     return galleryService.findAllByStatusTrue(page, limit);
+  }
+
+  @GetMapping("/find-all")
+  //@PreAuthorize("hasAuthority('CUSTOMER')")
+  public ResponseEntity<?> getAllGallery(@RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int limit){
+    return galleryService.findAll(page, limit);
   }
 
   @DeleteMapping("/delete/{id}")

@@ -60,6 +60,7 @@ public class PackageInDayController {
     return packageInDayService.findAll(page,limit);
   }
 
+
   @DeleteMapping("/delete/{id}")
   public ResponseEntity<?> changeStatus(@PathVariable(name = "id") Long id){
     return packageInDayService.changeStatus(id);

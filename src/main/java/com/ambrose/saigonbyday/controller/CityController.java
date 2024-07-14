@@ -49,10 +49,15 @@ public class CityController {
     return cityService.findById(id);
   }
 
-  @GetMapping("/find-all")
+  @GetMapping("/find-all-true")
   public ResponseEntity<?> getAllCityByStatusTrue(@RequestParam(defaultValue = "1") int page,
       @RequestParam(defaultValue = "10") int limit){
     return cityService.findAllByStatusTrue(page, limit);
+  }
+  @GetMapping("/find-all")
+  public ResponseEntity<?> getAllCity(@RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int limit){
+    return cityService.findAll(page, limit);
   }
 
   @DeleteMapping("/delete/{id}")

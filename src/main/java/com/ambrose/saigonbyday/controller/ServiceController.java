@@ -48,11 +48,18 @@ public class ServiceController {
     return serviceService.findById(id);
   }
 
-  @GetMapping("/find-all")
+  @GetMapping("/find-all-true")
   //@PreAuthorize("hasAuthority('CUSTOMER')")
   public ResponseEntity<?> getAllServiceByStatusTrue(@RequestParam(defaultValue = "1") int page,
       @RequestParam(defaultValue = "10") int limit){
     return serviceService.findAllByStatusTrue(page, limit);
+  }
+
+  @GetMapping("/find-all")
+  //@PreAuthorize("hasAuthority('CUSTOMER')")
+  public ResponseEntity<?> getAllService(@RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int limit){
+    return serviceService.findAll(page, limit);
   }
 
   @DeleteMapping("/delete/{id}")

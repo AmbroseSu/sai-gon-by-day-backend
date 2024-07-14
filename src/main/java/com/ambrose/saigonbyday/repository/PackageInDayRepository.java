@@ -5,12 +5,14 @@ import com.ambrose.saigonbyday.entities.PackageInDay;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PackageInDayRepository extends JpaRepository<PackageInDay, String> {
+public interface PackageInDayRepository extends JpaRepository<PackageInDay, String>,
+    JpaSpecificationExecutor<PackageInDay> {
 
   PackageInDay findById(Long id);
   PackageInDay findByStatusIsTrueAndId(Long id);
