@@ -18,7 +18,8 @@ public interface ServiceInPackageRepository extends JpaRepository<ServiceInPacka
   ServiceInPackage findById(Long id);
   @Transactional
   Integer deleteAllByServiceeId(Long serviceId);
-
+  @Transactional
+  Integer deleteAllByPackageInDestinationId(Long packageInDestinationId);
   List<ServiceInPackage> findAllBy(Pageable pageable);
   @Query("SELECT pid FROM PackageInDestination pid "
       + "JOIN ServiceInPackage sip ON pid.id = sip.packageInDestination.id"

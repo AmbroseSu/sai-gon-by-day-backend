@@ -40,7 +40,7 @@ public class PackageController {
   public ResponseEntity<?> updatePackage(@RequestBody PackageRequestDTO packageRequestDTO, @PathVariable(name = "id") Long id){
     if (packageService.checkExist(id)){
       packageRequestDTO.getPackageDTO().setId(id);
-      return packageService.save(packageRequestDTO);
+      return packageService.update(packageRequestDTO);
     }
     return ResponseUtil.error("Not Found", "Gallery not exits", HttpStatus.NOT_FOUND);
   }

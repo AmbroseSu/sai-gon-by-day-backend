@@ -8,4 +8,5 @@ import org.springframework.http.ResponseEntity;
 public interface PackageService extends GenericService<PackageDTO>{
 
   ResponseEntity<?> save(PackageRequestDTO packageRequestDTO);
+  ResponseEntity<?> update(PackageRequestDTO packageRequestDTO);
 }

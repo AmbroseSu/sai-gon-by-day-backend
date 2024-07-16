@@ -303,4 +303,53 @@ public class PackageServiceImpl implements PackageService {
     }
 
   }
+
+  @Override
+  public ResponseEntity<?> update(PackageRequestDTO packageRequestDTO) {
+    try {
+      packageInDestinationRepository.deleteAllByPackageeId(packageRequestDTO.getPackageDTO().getId());
+      List<PackageInDestination> packageInDestinations = packageInDestinationRepository.findAllByPackageeId(packageRequestDTO.getPackageDTO().getId());
+      for(PackageInDestination packageInDestination : packageInDestinations){
+        serviceInPackageRepository.deleteAllByPackageInDestinationId(packageInDestination.getId());
+      }
+      PackageDTO packageDTO = savePackage(packageRequestDTO);
+      List<Long> serviceIds = new ArrayList<>();
+      if(packageDTO != null){
+        List<ServiceDestinationDTO> serviceDestinationDTOS = packageRequestDTO.getServiceDestinationDTOS();
+
+        if(!serviceDestinationDTOS.isEmpty()){
+          for (ServiceDestinationDTO serviceDestinationDTO : serviceDestinationDTOS){
+            Long destinationId = destinationRepository.findDestinationByServiceId(serviceDestinationDTO.getId()).getId();
+            PackageInDestination packageInDestination = packageInDestinationRepository.findByPackageeIdAndDestinationId(packageDTO.getId(),destinationId);
+            packageInDestination.setStartTime(serviceDestinationDTO.getStartTime());
+            packageInDestination.setEndTime(serviceDestinationDTO.getEndTime());
+            packageInDestination.setTransportation(serviceDestinationDTO.getTransportation());
+            packageInDestinationRepository.save(packageInDestination);
+            Servicee servicee = serviceRepository.findById(serviceDestinationDTO.getId());
+            serviceIds.add(servicee.getId());
+            ServiceInPackage sip = serviceInPackageRepository.findByServiceeIdAndPackageInDestinationId(servicee.getId(), packageInDestination.getId());
+            if(sip == null){
+              sip = new ServiceInPackage();
+              sip.setServicee(servicee);
+              sip.setPackageInDestination(packageInDestination);
+            }else{
+              sip.setServicee(servicee);
+              sip.setPackageInDestination(packageInDestination);
+            }
+
+            serviceInPackageRepository.save(sip);
+          }
+
+        }
+      }
+      PackageServiceResponse result = new PackageServiceResponse();
+      result.setPackageDTO(packageDTO);
+      result.setServiceId(serviceIds);
+      return ResponseUtil.getObject(result, HttpStatus.OK, "Saved successfully");
+    } catch (Exception ex){
+      return ResponseUtil.error(ex.getMessage(), "Failed", HttpStatus.BAD_REQUEST);
+    }
+
+  }
+
 }
