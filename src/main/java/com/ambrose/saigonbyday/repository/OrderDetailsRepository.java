@@ -47,5 +47,13 @@ public interface OrderDetailsRepository extends JpaRepository<OrderDetails, Stri
   @Query("SELECT ord FROM OrderDetails ord WHERE ord.is_status = :is_Status")
   List<OrderDetails> findAllByIs_status(@Param("is_Status") Status is_Status);
 
+  @Query("SELECT ord FROM OrderDetails ord WHERE ord.is_status = :is_Status")
+  List<OrderDetails> findAllByIs_status(@Param("is_Status") Status is_Status, Pageable pageable);
+  @Query("SELECT ord FROM OrderDetails ord JOIN ord.paymentHistory pay WHERE pay.id = :paymentHistoryId AND ord.is_status = :isStatus")
+  List<OrderDetails> findByPaymentHistoryIdAndIsStatus(Long paymentHistoryId, Status isStatus);
+
+  @Query("SELECT od FROM OrderDetails od WHERE od.packageInDay.id = :packageInDayId AND od.is_status = :status")
+  List<OrderDetails> findByPackageInDayIdAndIs_status(@Param("packageInDayId") Long packageInDayId, @Param("status") Status status);
+
   Long countAllByStatusIsTrue();
 }

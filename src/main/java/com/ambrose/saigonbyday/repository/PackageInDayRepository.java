@@ -19,6 +19,7 @@ public interface PackageInDayRepository extends JpaRepository<PackageInDay, Stri
   PackageInDay findById(Long id);
   PackageInDay findByStatusIsTrueAndId(Long id);
 
+
   List<PackageInDay> findAllBy(Pageable pageable);
   List<PackageInDay> findAllByStatusIsTrue(Pageable pageable);
 
@@ -27,4 +28,8 @@ public interface PackageInDayRepository extends JpaRepository<PackageInDay, Stri
 
   @Query("SELECT pid.packagee FROM PackageInDay pid WHERE pid.packagee.id = :packageId ")
   Package findPackageByPackageId(@Param("packageId") Long packageId);
+
+  @Query("SELECT pid.packagee FROM PackageInDay pid WHERE pid.id = :packageInDayId ")
+  Package findPackageByPackageInDayId(@Param("packageInDayId") Long packageInDayId);
+
 }

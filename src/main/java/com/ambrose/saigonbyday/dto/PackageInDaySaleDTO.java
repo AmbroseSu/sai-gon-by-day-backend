@@ -14,10 +14,12 @@ public class PackageInDaySaleDTO {
   private Date date;
   private Float price;
   private Boolean status;
+  private String image;
   private String code;
   private String city;
   private List<String> serviceNames;
   private int numberAttendance;
+  private Long packageId;
   private String packageName;
   private String packageDescription;
   private String packageShortDescription;

@@ -334,7 +334,7 @@ public class OrderServiceImpl implements OrderService {
           paymentHistory.setStatus(true);
           paymentHistory.setMethod(paymentHistoryDTO.getMethod());
           Date date = new Date();
-          paymentHistory.setPurchaseDate(date.getTime());
+          paymentHistory.setPurchaseDate(date);
           paymentHistoryRepository.save(paymentHistory);
           paymentHistoryDTO = (PaymentHistoryDTO) genericConverter.toDTO(paymentHistory, PaymentHistoryDTO.class);
         } else {
@@ -407,11 +407,13 @@ public class OrderServiceImpl implements OrderService {
     packageInDaySaleDTO.setId(packageInDay.getId());
     packageInDaySaleDTO.setDate(packageInDay.getDate());
     packageInDaySaleDTO.setCode(packageInDay.getCode());
+    packageInDaySaleDTO.setImage(packageInDay.getImage());
     packageInDaySaleDTO.setPrice(packageInDay.getPrice());
     packageInDaySaleDTO.setNumberAttendance(packageInDay.getNumberAttendance());
 
     Package packagee = packageInDay.getPackagee();
     if(packagee != null){
+      packageInDaySaleDTO.setPackageId(packagee.getId());
       packageInDaySaleDTO.setPackageName(packagee.getName());
       packageInDaySaleDTO.setPackageDescription(packagee.getDescription());
       packageInDaySaleDTO.setPackageShortDescription(

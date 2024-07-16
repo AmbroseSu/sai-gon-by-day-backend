@@ -23,7 +23,7 @@ public class PaymentHistory {
   private Long id;
   private String method;
   private Boolean status;
-  private Long purchaseDate;
+  private Date purchaseDate;
 
   @OneToMany(mappedBy = "paymentHistory", cascade = CascadeType.ALL)
   private List<OrderDetails> orderDetails;

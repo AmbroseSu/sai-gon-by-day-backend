@@ -13,5 +13,5 @@ public class PaymentHistoryDTO {
   private Long userId;
   private String method;
   private Boolean status;
-  private Long purchaseDate;
+  private Date purchaseDate;
 }

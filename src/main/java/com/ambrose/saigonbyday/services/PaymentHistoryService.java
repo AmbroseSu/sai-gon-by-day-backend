@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 
 public interface PaymentHistoryService extends GenericService<PaymentHistoryDTO>{
 
-  //ResponseEntity<?> findToTalMoney();
+  ResponseEntity<?> findToTalMoneyWithMonth(int month, int year);
+  ResponseEntity<?> getPaymentDashboard(int page, int limit);
+
 
 }
