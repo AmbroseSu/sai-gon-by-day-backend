@@ -385,6 +385,22 @@ public class OrderServiceImpl implements OrderService {
     }
   }
 
+  @Override
+  public ResponseEntity<?> totalMoneySale() {
+    try {
+      Float totalPrice = 0F;
+      List<OrderDetails> orderDetails = orderDetailsRepository.findAllByIs_status(Status.PAID);
+      for (OrderDetails orderDetails1 : orderDetails){
+        totalPrice += orderDetails1.getPrice();
+      }
+
+
+      return ResponseUtil.getResult(totalPrice, HttpStatus.OK, "Successfully");
+    } catch (Exception ex) {
+      return ResponseUtil.error(ex.getMessage(), "Failed", HttpStatus.BAD_REQUEST);
+    }
+  }
+
 
   private PackageInDaySaleDTO convertToPackageInDaySaleDTO(PackageInDay packageInDay){
     PackageInDaySaleDTO packageInDaySaleDTO = new PackageInDaySaleDTO();

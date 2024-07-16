@@ -39,32 +39,7 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 
   @Override
   public ResponseEntity<?> save(PaymentHistoryDTO paymentHistoryDTO) {
-    try{
-      PaymentHistory paymentHistory;
-
-      if (paymentHistoryDTO.getId() != null){
-        Long id = paymentHistoryDTO.getId();
-        PaymentHistory oldEntity = paymentHistoryRepository.findById(id);
-        PaymentHistory tempOldEntity = ServiceUtils.cloneFromEntity(oldEntity);
-
-        paymentHistory = (PaymentHistory) genericConverter.toEntity(paymentHistoryDTO, PaymentHistory.class);
-        ServiceUtils.fillMissingAttribute(paymentHistory, tempOldEntity);
-        paymentHistoryRepository.save(paymentHistory);
-
-      }
-      else{
-        paymentHistoryDTO.setStatus(true);
-        paymentHistory = (PaymentHistory) genericConverter.toEntity(paymentHistoryDTO, PaymentHistory.class);
-        paymentHistoryRepository.save(paymentHistory);
-
-      }
-      PaymentHistoryDTO result = (PaymentHistoryDTO) genericConverter.toDTO(paymentHistory, PaymentHistoryDTO.class);
-
-      return ResponseUtil.getObject(result, HttpStatus.OK, "Saved successfully");
-    }
-    catch (Exception ex){
-      return ResponseUtil.error(ex.getMessage(), "Save Failed", HttpStatus.BAD_REQUEST);
-    }
+    return null;
   }
 
   @Override

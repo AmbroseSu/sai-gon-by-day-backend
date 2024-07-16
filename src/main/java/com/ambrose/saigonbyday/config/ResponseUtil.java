@@ -24,6 +24,18 @@ public class ResponseUtil {
     );
   }
 
+  public static ResponseEntity<ResponseDTO> getResult(Float result, HttpStatus status,
+      String response) {
+    return new ResponseEntity<>(
+        ResponseDTO.builder()
+            .details(ExceptionUtils.getResponseString(response))
+            .content(result)
+            .statusCode(status.value())
+            .build()
+        , status
+    );
+  }
+
   public static ResponseEntity<?> getCollection(Object result, HttpStatus status, String response
       , int page, int limit, long count) {
     return new ResponseEntity<>(

@@ -16,4 +16,7 @@ public interface OrderService extends GenericService<OrderDTO>{
   ResponseEntity<?> findByIsStatusPaidWithUserId(Long userId, int page, int limit);
 
 
+  ResponseEntity<?> totalMoneySale();
+
+
 }

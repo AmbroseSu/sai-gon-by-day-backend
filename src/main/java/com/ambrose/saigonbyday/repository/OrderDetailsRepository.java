@@ -44,5 +44,8 @@ public interface OrderDetailsRepository extends JpaRepository<OrderDetails, Stri
       + "WHERE od.order.id = :orderId AND od.is_status = :status")
   List<PackageInDay> findAllByIs_statusAndOrderId(@Param("status") Status status, @Param("orderId") Long orderId, Pageable pageable);
 
+  @Query("SELECT ord FROM OrderDetails ord WHERE ord.is_status = :is_Status")
+  List<OrderDetails> findAllByIs_status(@Param("is_Status") Status is_Status);
+
   Long countAllByStatusIsTrue();
 }

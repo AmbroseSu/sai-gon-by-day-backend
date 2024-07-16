@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,6 +52,11 @@ public class OrderController {
   public ResponseEntity<?> findAllPackageInDaySalePaidWithUserId(@PathVariable(name = "userid") Long id, @RequestParam(defaultValue = "1") int page,
       @RequestParam(defaultValue = "10") int limit){
     return orderService.findPackageInDaySalebyUserIdStatusPaid(id, page, limit);
+  }
+
+  @GetMapping("/total-money")
+  public ResponseEntity<?> totalMoney(){
+    return orderService.totalMoneySale();
   }
 
 }

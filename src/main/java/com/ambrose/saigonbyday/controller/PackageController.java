@@ -37,10 +37,10 @@ public class PackageController {
   }
 
   @PutMapping("update/{id}")
-  public ResponseEntity<?> updatePackage(@RequestBody PackageDTO packageDTO, @PathVariable(name = "id") Long id){
+  public ResponseEntity<?> updatePackage(@RequestBody PackageRequestDTO packageRequestDTO, @PathVariable(name = "id") Long id){
     if (packageService.checkExist(id)){
-      packageDTO.setId(id);
-      return packageService.save(packageDTO);
+      packageRequestDTO.getPackageDTO().setId(id);
+      return packageService.save(packageRequestDTO);
     }
     return ResponseUtil.error("Not Found", "Gallery not exits", HttpStatus.NOT_FOUND);
   }
