@@ -23,7 +23,6 @@ public class OrderDTO {
   private Float totalPrice;
   private Long date;
   private Boolean status;
-  private Long paymentHistoryId;
   private Long userId;
   private List<Long> packageInDayIds;
 

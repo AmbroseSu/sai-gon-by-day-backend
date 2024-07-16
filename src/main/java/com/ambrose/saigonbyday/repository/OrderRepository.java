@@ -3,6 +3,7 @@ package com.ambrose.saigonbyday.repository;
 import com.ambrose.saigonbyday.entities.Order;
 import com.ambrose.saigonbyday.entities.PaymentHistory;
 import com.ambrose.saigonbyday.entities.enums.Status;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,7 +18,5 @@ public interface OrderRepository extends JpaRepository<Order, String> {
   Order findOrderByUserId(@Param("userId") Long userId);
 
 
-  @Query("SELECT o.paymentHistory FROM Order o WHERE o.paymentHistory.id = :paymentHistoryId")
-  PaymentHistory findPaymentHistoryByPaymentHistoryId(@Param("paymentHistoryId") Long paymentHistoryId);
 
 }

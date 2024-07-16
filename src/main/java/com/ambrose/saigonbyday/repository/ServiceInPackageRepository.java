@@ -30,4 +30,6 @@ public interface ServiceInPackageRepository extends JpaRepository<ServiceInPacka
 
   @Query("SELECT sip FROM ServiceInPackage sip WHERE sip.servicee.id = :serviceId AND sip.packageInDestination.id = :packageInDestinationId")
   ServiceInPackage findByServiceeIdAndPackageInDestinationId(@Param("serviceId") Long serviceId, @Param("packageInDestinationId") Long packageInDestinationId);
+ @Query("SELECT sip FROM ServiceInPackage sip WHERE sip.packageInDestination.id = :packageInDestinationId")
+  List<ServiceInPackage> findByPackageInDestinationId(Long packageInDestinationId);
 }

@@ -23,6 +23,7 @@ import com.ambrose.saigonbyday.services.PackageService;
 import com.ambrose.saigonbyday.services.ServiceUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,15 +45,47 @@ public class PackageServiceImpl implements PackageService {
 
   @Override
   public ResponseEntity<?> findById(Long id) {
-    try{
+//    try{
+//      Package packagee = packageRepository.findByStatusIsTrueAndId(id);
+//      if (packagee != null){
+//        PackageDTO result = convertPackageToPackageDTO(packagee);
+//        return ResponseUtil.getObject(result, HttpStatus.OK, "Fetched successfully");
+//      } else {
+//        return ResponseUtil.error("Package not found", "Cannot find Package", HttpStatus.NOT_FOUND);
+//      }
+//    } catch (Exception ex){
+//      return ResponseUtil.error(ex.getMessage(), "Failed", HttpStatus.BAD_REQUEST);
+//    }
+    try {
       Package packagee = packageRepository.findByStatusIsTrueAndId(id);
-      if (packagee != null){
-        PackageDTO result = convertPackageToPackageDTO(packagee);
+      if (packagee != null) {
+        // Chuyển đổi Package thành PackageDTO
+        PackageDTO packageDTO = convertPackageToPackageDTO(packagee);
+
+        // Lấy danh sách PackageInDestination
+        List<PackageInDestination> packageInDestinations = packageInDestinationRepository.findAllByPackageeId(packagee.getId());
+
+        // Lấy danh sách ServiceDestinationDTO từ ServiceInPackage
+        List<ServiceDestinationDTO> serviceDestinationDTOS = new ArrayList<>();
+        for (PackageInDestination packageInDestination : packageInDestinations) {
+          List<ServiceInPackage> serviceInPackages = serviceInPackageRepository.findByPackageInDestinationId(packageInDestination.getId());
+          for (ServiceInPackage serviceInPackage : serviceInPackages) {
+            ServiceDestinationDTO serviceDestinationDTO = new ServiceDestinationDTO();
+            serviceDestinationDTO.setId(serviceInPackage.getServicee().getId());
+            serviceDestinationDTO.setStartTime(packageInDestination.getStartTime());
+            serviceDestinationDTO.setEndTime(packageInDestination.getEndTime());
+            serviceDestinationDTO.setTransportation(packageInDestination.getTransportation());
+            serviceDestinationDTOS.add(serviceDestinationDTO);
+          }
+        }
+
+        // Tạo đối tượng PackageRequestDTO
+        PackageRequestDTO result = new PackageRequestDTO(packageDTO, serviceDestinationDTOS);
         return ResponseUtil.getObject(result, HttpStatus.OK, "Fetched successfully");
       } else {
         return ResponseUtil.error("Package not found", "Cannot find Package", HttpStatus.NOT_FOUND);
       }
-    } catch (Exception ex){
+    } catch (Exception ex) {
       return ResponseUtil.error(ex.getMessage(), "Failed", HttpStatus.BAD_REQUEST);
     }
   }
@@ -136,7 +169,7 @@ public class PackageServiceImpl implements PackageService {
         Package tempOldEntity = ServiceUtils.cloneFromEntity(oldEntity);
         packagee = (Package) genericConverter.toEntity(packageRequestDTO.getPackageDTO(), Package.class);
         packagee = ServiceUtils.fillMissingAttribute(packagee, tempOldEntity);
-        packageInDestinationRepository.deleteAllByPackageeId(packageRequestDTO.getPackageDTO().getId());
+        //packageInDestinationRepository.deleteAllByPackageeId(packageRequestDTO.getPackageDTO().getId());
         loadPackageInDestinationFromListDestinationIds(requestDestinationIds, packagee.getId());
 
         packageRepository.save(packagee);
@@ -185,10 +218,17 @@ public class PackageServiceImpl implements PackageService {
         Destination destination = destinationRepository.findById(destinationId);
         Package packagee = packageRepository.findById(packageId);
         if(destination != null && packagee != null){
-          PackageInDestination pid = new PackageInDestination();
-          pid.setPackagee(packagee);
-          pid.setDestination(destination);
-          packageInDestinationRepository.save(pid);
+          PackageInDestination packageInDestination = packageInDestinationRepository.findByPackageeIdAndDestinationId(packageId, destinationId);
+          if(packageInDestination == null){
+            packageInDestination = new PackageInDestination();
+            packageInDestination.setPackagee(packagee);
+            packageInDestination.setDestination(destination);
+          } else{
+            packageInDestination.setPackagee(packagee);
+            packageInDestination.setDestination(destination);
+          }
+
+          packageInDestinationRepository.save(packageInDestination);
         }
       }
     }

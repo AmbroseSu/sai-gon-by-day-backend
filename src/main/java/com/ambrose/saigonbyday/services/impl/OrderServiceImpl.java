@@ -5,7 +5,9 @@ import com.ambrose.saigonbyday.config.ResponseUtil;
 import com.ambrose.saigonbyday.converter.GenericConverter;
 import com.ambrose.saigonbyday.dto.DestinationDTO;
 import com.ambrose.saigonbyday.dto.OrderDTO;
+import com.ambrose.saigonbyday.dto.PackageDTO;
 import com.ambrose.saigonbyday.dto.PackageInDaySaleDTO;
+import com.ambrose.saigonbyday.dto.PaymentHistoryDTO;
 import com.ambrose.saigonbyday.entities.City;
 import com.ambrose.saigonbyday.entities.Destination;
 import com.ambrose.saigonbyday.entities.Gallery;
@@ -25,6 +27,7 @@ import com.ambrose.saigonbyday.services.GenericService;
 import com.ambrose.saigonbyday.services.OrderService;
 import com.ambrose.saigonbyday.services.ServiceUtils;
 import java.awt.event.FocusAdapter;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -32,6 +35,8 @@ import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Or;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -72,7 +77,7 @@ public class OrderServiceImpl implements OrderService {
       ServiceUtils.errors.clear();
       List<Long> requestPackageInDayIds = orderDTO.getPackageInDayIds();
       Long requestUserId = orderDTO.getUserId();
-      Long requestPaymentHistoryId = orderDTO.getPaymentHistoryId();
+      //List<Long> requestPaymentHistoryIds = orderDTO.getPaymentHistoryId();
       Float totalPrice = 0.0f;
       Order order;
 
@@ -84,9 +89,9 @@ public class OrderServiceImpl implements OrderService {
       } else {
         return ResponseUtil.error("Please login or register","Save Failed", HttpStatus.BAD_REQUEST);
       }
-      if (requestPaymentHistoryId != null){
-        ServiceUtils.validatePaymentHistoryIds(List.of(requestPaymentHistoryId), paymentHistoryRepository);
-      }
+//      if (requestPaymentHistoryIds != null){
+//        ServiceUtils.validatePaymentHistoryIds(requestPaymentHistoryIds, paymentHistoryRepository);
+//      }
       if (!ServiceUtils.errors.isEmpty()){
         throw new CustomValidationException(ServiceUtils.errors);
       }
@@ -192,12 +197,16 @@ public class OrderServiceImpl implements OrderService {
           .toList();
       newOrderDTO.setPackageInDayIds(packageInDayIds);
     }
-    if (order.getPaymentHistory() == null){
-      newOrderDTO.setPaymentHistoryId(null);
-    } else{
-      PaymentHistory paymentHistory = orderRepository.findPaymentHistoryByPaymentHistoryId(order.getPaymentHistory().getId());
-      newOrderDTO.setPaymentHistoryId(paymentHistory.getId());
-    }
+//    if (order.getPaymentHistory() == null){
+//      newOrderDTO.setPaymentHistoryId(null);
+//    } else{
+//      List<PaymentHistory> paymentHistorys = orderRepository.findPaymentHistoryByOrderId(order.getId());
+//      List<Long> paymentHistoryIds = new ArrayList<>();
+//      for(PaymentHistory paymentHistory : paymentHistorys){
+//        paymentHistoryIds.add(paymentHistory.getId());
+//      }
+//      newOrderDTO.setPaymentHistoryId(paymentHistoryIds);
+//    }
     return newOrderDTO;
 
   }
@@ -279,6 +288,103 @@ public class OrderServiceImpl implements OrderService {
        return ResponseUtil.error(ex.getMessage(), "Confirm Failed", HttpStatus.BAD_REQUEST);
     }
   }
+
+  @Override
+  public ResponseEntity<?> findPackageInDaySalebyUserIdStatusPaid(Long userId, int page,
+      int limit) {
+    try{
+      Pageable pageable = PageRequest.of(page - 1, limit);
+      Order order = orderRepository.findOrderByUserId(userId);
+      List<PackageInDaySaleDTO> packageInDaySaleDTOS = new ArrayList<>();
+      if(order != null){
+        List<PackageInDay> packageInDays = orderDetailsRepository.findAllByIs_statusAndOrderId(Status.PAID,
+            order.getId(), pageable);
+
+        for (PackageInDay packageInDay : packageInDays){
+          packageInDaySaleDTOS.add(convertToPackageInDaySaleDTO(packageInDay));
+        }
+
+      }
+
+      return ResponseUtil.getCollection(packageInDaySaleDTOS,
+          HttpStatus.OK,
+          "Fetched successfully",
+          page,
+          limit,
+          packageInDayRepository.countAllByStatusIsTrue());
+
+
+    }
+    catch (Exception ex) {
+      return ResponseUtil.error(ex.getMessage(), "Confirm Failed", HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Override
+  public ResponseEntity<?> paidOrder(PaymentHistoryDTO paymentHistoryDTO) {
+    try{
+      Order order = orderRepository.findOrderByUserId(paymentHistoryDTO.getUserId());
+      //List<PackageInDaySaleDTO> packageInDaySaleDTOS = new ArrayList<>();
+      if(order != null){
+        List<OrderDetails> orderDetailsList = orderDetailsRepository.findByOrderIdAndIs_status(order.getId(), Status.CONFIRMED);
+
+        PaymentHistory paymentHistory;
+        if (paymentHistoryDTO.getId() == null) {
+          paymentHistory = new PaymentHistory();
+          paymentHistory.setStatus(true);
+          paymentHistory.setMethod(paymentHistoryDTO.getMethod());
+          Date date = new Date();
+          paymentHistory.setPurchaseDate(date.getTime());
+          paymentHistoryRepository.save(paymentHistory);
+          paymentHistoryDTO = (PaymentHistoryDTO) genericConverter.toDTO(paymentHistory, PaymentHistoryDTO.class);
+        } else {
+
+            return ResponseUtil.error("Can not update Payment", "Confirm Failed", HttpStatus.BAD_REQUEST);
+        }
+
+        for (OrderDetails orderDetails : orderDetailsList) {
+          orderDetails.setIs_status(Status.PAID);
+          orderDetails.setPaymentHistory(paymentHistory);
+          orderDetailsRepository.save(orderDetails);
+        }
+
+
+
+        return ResponseUtil.getObject(paymentHistoryDTO, HttpStatus.OK, "Saved successfully");
+      } else {
+        return ResponseUtil.error("Order not found", "Confirm Failed", HttpStatus.BAD_REQUEST);
+      }
+
+    }
+    catch (Exception ex) {
+      return ResponseUtil.error(ex.getMessage(), "Confirm Failed", HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Override
+  public ResponseEntity<?> findByIsStatusPaidWithUserId(Long userId, int page, int limit) {
+    try {
+      // Sử dụng Pageable để phân trang
+      Pageable pageable = PageRequest.of(page, limit);
+      Order order = orderRepository.findOrderByUserId(userId);
+
+      List<PackageInDay> packageInDays = orderDetailsRepository.findAllByIs_statusAndOrderId(Status.PAID,order.getId(),pageable);
+      List<PackageInDaySaleDTO> packageInDaySaleDTOS = new ArrayList<>();
+      for(PackageInDay packageInDay : packageInDays){
+        PackageInDaySaleDTO packageInDaySaleDTO = convertToPackageInDaySaleDTO(packageInDay);
+        packageInDaySaleDTOS.add(packageInDaySaleDTO);
+      }
+      // Chuyển đổi OrderDetails thành PackageInDaySaleDTO
+
+      // Trả về kết quả dưới dạng Page
+      Page<PackageInDaySaleDTO> packageInDaySaleDTOPage = new PageImpl<>(packageInDaySaleDTOS, pageable, orderDetailsRepository.countAllByStatusIsTrue());
+
+      return ResponseUtil.getObject(packageInDaySaleDTOPage, HttpStatus.OK, "Retrieved successfully");
+    } catch (Exception ex) {
+      return ResponseUtil.error(ex.getMessage(), "Retrieval Failed", HttpStatus.BAD_REQUEST);
+    }
+  }
+
 
   private PackageInDaySaleDTO convertToPackageInDaySaleDTO(PackageInDay packageInDay){
     PackageInDaySaleDTO packageInDaySaleDTO = new PackageInDaySaleDTO();

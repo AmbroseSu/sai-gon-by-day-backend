@@ -2,6 +2,7 @@ package com.ambrose.saigonbyday.controller;
 
 import com.ambrose.saigonbyday.dto.OrderDTO;
 import com.ambrose.saigonbyday.dto.PackageDTO;
+import com.ambrose.saigonbyday.dto.PaymentHistoryDTO;
 import com.ambrose.saigonbyday.services.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,16 @@ public class OrderController {
   public ResponseEntity<?> findAllPackageInDaySaleWithUserId(@PathVariable(name = "userid") Long id, @RequestParam(defaultValue = "1") int page,
       @RequestParam(defaultValue = "10") int limit){
     return orderService.findPackageInDaySalebyUserId(id, page, limit);
+  }
+
+  @PostMapping("/paid-order")
+  public ResponseEntity<?> paidOrder(@RequestBody PaymentHistoryDTO paymentHistoryDTO){
+    return orderService.paidOrder(paymentHistoryDTO);
+  }
+  @PostMapping("/find-all-paid-for-user/{userid}")
+  public ResponseEntity<?> findAllPackageInDaySalePaidWithUserId(@PathVariable(name = "userid") Long id, @RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int limit){
+    return orderService.findPackageInDaySalebyUserIdStatusPaid(id, page, limit);
   }
 
 }

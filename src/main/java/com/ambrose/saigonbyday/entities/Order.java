@@ -25,8 +25,6 @@ public class Order {
   private Float totalPrice;
   private Long date;
   private Boolean status;
-  @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
-  private PaymentHistory paymentHistory;
 
   @ManyToOne
   @JoinColumn(name = "userId")
