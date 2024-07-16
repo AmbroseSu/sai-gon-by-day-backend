@@ -54,6 +54,12 @@ public class OrderController {
     return orderService.findPackageInDaySalebyUserIdStatusPaid(id, page, limit);
   }
 
+  @PostMapping("/find-all-confirm-for-user/{userid}")
+  public ResponseEntity<?> findAllPackageInDaySaleConfirmWithUserId(@PathVariable(name = "userid") Long id, @RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int limit){
+    return orderService.findByIsStatusConfirmWithUserId(id, page, limit);
+  }
+
   @GetMapping("/total-money")
   public ResponseEntity<?> totalMoney(){
     return orderService.totalMoneySale();

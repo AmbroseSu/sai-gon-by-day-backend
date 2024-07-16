@@ -13,7 +13,7 @@ public interface OrderService extends GenericService<OrderDTO>{
 
   ResponseEntity<?> paidOrder(PaymentHistoryDTO paymentHistoryDTO);
 
-  ResponseEntity<?> findByIsStatusPaidWithUserId(Long userId, int page, int limit);
+  ResponseEntity<?> findByIsStatusConfirmWithUserId(Long userId, int page, int limit);
 
 
   ResponseEntity<?> totalMoneySale();

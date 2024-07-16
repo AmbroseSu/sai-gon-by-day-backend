@@ -362,26 +362,32 @@ public class OrderServiceImpl implements OrderService {
   }
 
   @Override
-  public ResponseEntity<?> findByIsStatusPaidWithUserId(Long userId, int page, int limit) {
-    try {
-      // Sử dụng Pageable để phân trang
-      Pageable pageable = PageRequest.of(page, limit);
+  public ResponseEntity<?> findByIsStatusConfirmWithUserId(Long userId, int page, int limit) {
+    try{
+      Pageable pageable = PageRequest.of(page - 1, limit);
       Order order = orderRepository.findOrderByUserId(userId);
-
-      List<PackageInDay> packageInDays = orderDetailsRepository.findAllByIs_statusAndOrderId(Status.PAID,order.getId(),pageable);
       List<PackageInDaySaleDTO> packageInDaySaleDTOS = new ArrayList<>();
-      for(PackageInDay packageInDay : packageInDays){
-        PackageInDaySaleDTO packageInDaySaleDTO = convertToPackageInDaySaleDTO(packageInDay);
-        packageInDaySaleDTOS.add(packageInDaySaleDTO);
+      if(order != null){
+        List<PackageInDay> packageInDays = orderDetailsRepository.findAllByIs_statusAndOrderId(Status.CONFIRMED,
+            order.getId(), pageable);
+
+        for (PackageInDay packageInDay : packageInDays){
+          packageInDaySaleDTOS.add(convertToPackageInDaySaleDTO(packageInDay));
+        }
+
       }
-      // Chuyển đổi OrderDetails thành PackageInDaySaleDTO
 
-      // Trả về kết quả dưới dạng Page
-      Page<PackageInDaySaleDTO> packageInDaySaleDTOPage = new PageImpl<>(packageInDaySaleDTOS, pageable, orderDetailsRepository.countAllByStatusIsTrue());
+      return ResponseUtil.getCollection(packageInDaySaleDTOS,
+          HttpStatus.OK,
+          "Fetched successfully",
+          page,
+          limit,
+          packageInDayRepository.countAllByStatusIsTrue());
 
-      return ResponseUtil.getObject(packageInDaySaleDTOPage, HttpStatus.OK, "Retrieved successfully");
-    } catch (Exception ex) {
-      return ResponseUtil.error(ex.getMessage(), "Retrieval Failed", HttpStatus.BAD_REQUEST);
+
+    }
+    catch (Exception ex) {
+      return ResponseUtil.error(ex.getMessage(), "Confirm Failed", HttpStatus.BAD_REQUEST);
     }
   }
 
