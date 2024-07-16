@@ -35,7 +35,7 @@ public class User implements UserDetails {
   private Gender gender;
   private Role role;
   @Column(length = 2000)
-  private String FCMToken;
+  private String fcmtoken;
   private String DOB;
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private List<Order> orders;

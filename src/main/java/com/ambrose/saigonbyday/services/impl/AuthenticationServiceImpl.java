@@ -227,7 +227,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       user.setGender(signUp.getGender());
       //user.setGender(signUp.getGender());
       user.setRole(Role.CUSTOMER);
-      user.setFCMToken(signUp.getFCMToken());
+      user.setFcmtoken(signUp.getFcmtoken());
       UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
       userRepository.save(user);
 
@@ -270,7 +270,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       user.setGender(signUpGoogle.getGender());
       //user.setGender(signUp.getGender());
       user.setRole(Role.CUSTOMER);
-      user.setFCMToken(signUpGoogle.getFCMToken());
+      user.setFcmtoken(signUpGoogle.getFcmtoken());
       UpsertUserDTO result = (UpsertUserDTO) genericConverter.toDTO(user, UpsertUserDTO.class);
       userRepository.save(user);
 

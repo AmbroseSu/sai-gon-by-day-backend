@@ -7,6 +7,7 @@ import com.ambrose.saigonbyday.converter.GenericConverter;
 import com.ambrose.saigonbyday.dto.PackageDTO;
 import com.ambrose.saigonbyday.dto.PackageRequestDTO;
 import com.ambrose.saigonbyday.dto.ServiceDestinationDTO;
+import com.ambrose.saigonbyday.dto.response.PackageServiceResponse;
 import com.ambrose.saigonbyday.entities.Destination;
 import com.ambrose.saigonbyday.entities.Package;
 import com.ambrose.saigonbyday.entities.PackageInDestination;
@@ -133,7 +134,7 @@ public class PackageServiceImpl implements PackageService {
       if (packageRequestDTO.getPackageDTO().getId() != null){
         Package oldEntity = packageRepository.findById(packageRequestDTO.getPackageDTO().getId());
         Package tempOldEntity = ServiceUtils.cloneFromEntity(oldEntity);
-        packagee = (Package) genericConverter.toEntity(packageRequestDTO.getPackageDTO(), PackageDTO.class);
+        packagee = (Package) genericConverter.toEntity(packageRequestDTO.getPackageDTO(), Package.class);
         packagee = ServiceUtils.fillMissingAttribute(packagee, tempOldEntity);
         packageInDestinationRepository.deleteAllByPackageeId(packageRequestDTO.getPackageDTO().getId());
         loadPackageInDestinationFromListDestinationIds(requestDestinationIds, packagee.getId());
@@ -224,8 +225,10 @@ public class PackageServiceImpl implements PackageService {
     try {
 
       PackageDTO packageDTO = savePackage(packageRequestDTO);
+      List<Long> serviceIds = new ArrayList<>();
       if(packageDTO != null){
         List<ServiceDestinationDTO> serviceDestinationDTOS = packageRequestDTO.getServiceDestinationDTOS();
+
         if(!serviceDestinationDTOS.isEmpty()){
           for (ServiceDestinationDTO serviceDestinationDTO : serviceDestinationDTOS){
             Long destinationId = destinationRepository.findDestinationByServiceId(serviceDestinationDTO.getId()).getId();
@@ -235,15 +238,26 @@ public class PackageServiceImpl implements PackageService {
             packageInDestination.setTransportation(serviceDestinationDTO.getTransportation());
             packageInDestinationRepository.save(packageInDestination);
             Servicee servicee = serviceRepository.findById(serviceDestinationDTO.getId());
-            ServiceInPackage sip = new ServiceInPackage();
-            sip.setServicee(servicee);
-            sip.setPackageInDestination(packageInDestination);
+            serviceIds.add(servicee.getId());
+            ServiceInPackage sip = serviceInPackageRepository.findByServiceeIdAndPackageInDestinationId(servicee.getId(), packageInDestination.getId());
+            if(sip == null){
+              sip = new ServiceInPackage();
+              sip.setServicee(servicee);
+              sip.setPackageInDestination(packageInDestination);
+            }else{
+              sip.setServicee(servicee);
+              sip.setPackageInDestination(packageInDestination);
+            }
+
             serviceInPackageRepository.save(sip);
           }
 
         }
       }
-      return ResponseUtil.getObject(packageDTO, HttpStatus.OK, "Saved successfully");
+      PackageServiceResponse result = new PackageServiceResponse();
+      result.setPackageDTO(packageDTO);
+      result.setServiceId(serviceIds);
+      return ResponseUtil.getObject(result, HttpStatus.OK, "Saved successfully");
     } catch (Exception ex){
       return ResponseUtil.error(ex.getMessage(), "Failed", HttpStatus.BAD_REQUEST);
     }

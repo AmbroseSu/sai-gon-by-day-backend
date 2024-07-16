@@ -19,5 +19,5 @@ public class UpsertUserDTO {
   //private String phone;
   private Gender gender;
   private Role role;
-  private String FCMToken;
+  private String fcmtoken;
 }
