@@ -10,9 +10,9 @@ spring:
 #    password: 5eyi2301L6d0N3ZMtBv3Xh9A
 #    driver-class-name: org.postgresql.Driver
   datasource:
-    url: jdbc:postgresql://ep-morning-sun-a1di1oc6.ap-southeast-1.aws.neon.tech/TripByDay?sslmode=require
-    username: TripByDay_owner
-    password: eP1KtxEH6RyN
+    url: jdbc:postgresql://ep-misty-shape-a5zg56g2.us-east-2.aws.neon.tech/tripbyday?sslmode=require
+    username: tripbyday_owner
+    password: uRt2gXb6hODk
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
