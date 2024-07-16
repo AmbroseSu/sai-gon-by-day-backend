@@ -13,6 +13,7 @@ public class PackageInDaySaleDTO {
   private Long id;
   private Date date;
   private Float price;
+  private Boolean status;
   private String code;
   private String city;
   private List<String> serviceNames;

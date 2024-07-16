@@ -298,6 +298,7 @@ public class PackageInDayServiceImpl implements PackageInDayService {
     packageInDaySaleDTO.setDate(packageInDay.getDate());
     packageInDaySaleDTO.setCode(packageInDay.getCode());
     packageInDaySaleDTO.setPrice(packageInDay.getPrice());
+    packageInDaySaleDTO.setStatus(packageInDay.getStatus());
     packageInDaySaleDTO.setNumberAttendance(packageInDay.getNumberAttendance());
 
     Package packagee = packageInDay.getPackagee();
