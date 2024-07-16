@@ -32,4 +32,10 @@ public interface PackageInDestinationRepository extends JpaRepository<PackageInD
       + "JOIN PackageInDestination pid ON de.id = pid.destination.id "
       + "WHERE pid.packagee.id = :packageId")
   List<Destination> findDestinationsByPackageId(@Param("packageId") Long packageId);
+
+  @Query("SELECT pid FROM PackageInDestination pid WHERE pid.packagee.id = :packageId AND pid.destination.id = :destinationId")
+  PackageInDestination findByPackageeIdAndDestinationId(@Param("packageId") Long packageId, @Param("destinationId") Long destinationId);
+
+  @Query("SELECT pid FROM PackageInDestination pid WHERE pid.packagee.id = :packageId")
+  List<PackageInDestination> findAllByPackageeId(@Param("packageId") Long packageId);
 }

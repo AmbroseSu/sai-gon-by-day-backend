@@ -14,6 +14,8 @@ public class PackageInDaySaleDTO {
   private Date date;
   private Float price;
   private String code;
+  private String city;
+  private List<String> serviceNames;
   private int numberAttendance;
   private String packageName;
   private String packageDescription;

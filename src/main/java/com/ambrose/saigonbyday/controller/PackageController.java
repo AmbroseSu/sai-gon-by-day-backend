@@ -3,6 +3,7 @@ package com.ambrose.saigonbyday.controller;
 
 import com.ambrose.saigonbyday.config.ResponseUtil;
 import com.ambrose.saigonbyday.dto.PackageDTO;
+import com.ambrose.saigonbyday.dto.PackageRequestDTO;
 import com.ambrose.saigonbyday.services.PackageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +32,8 @@ public class PackageController {
   private PackageService packageService;
 
   @PostMapping("/save")
-  public ResponseEntity<?> savePackage(@RequestBody PackageDTO packageDTO){
-    return packageService.save(packageDTO);
+  public ResponseEntity<?> savePackage(@RequestBody PackageRequestDTO packageRequestDTO){
+    return packageService.save(packageRequestDTO);
   }
 
   @PutMapping("update/{id}")

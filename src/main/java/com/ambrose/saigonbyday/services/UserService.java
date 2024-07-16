@@ -18,5 +18,7 @@ public interface UserService {
   //String validateTokenSms(String theToken, Long id);
 
   ResponseEntity<?> findUserByRole(Role role, int page, int limit);
+  ResponseEntity<?> findById(Long id);
+  ResponseEntity<?> findAll(int page, int limit);
 
 }

@@ -20,6 +20,9 @@ public interface DestinationRepository extends JpaRepository<Destination, String
   List<Destination> findAllByStatusIsTrue(Pageable pageable);
   Long countAllByStatusIsTrue();
 
+  @Query("SELECT ser.destination FROM Servicee ser WHERE ser.id = :serviceId")
+  Destination findDestinationByServiceId(@Param("serviceId") Long serviceId);
+
   @Query("SELECT d.city FROM Destination d WHERE d.city.id = :cityId ")
   City findCityByCityId(@Param("cityId") Long cityId);
 }

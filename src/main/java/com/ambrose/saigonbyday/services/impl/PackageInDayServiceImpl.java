@@ -14,16 +14,22 @@ import com.ambrose.saigonbyday.entities.Order;
 import com.ambrose.saigonbyday.entities.OrderDetails;
 import com.ambrose.saigonbyday.entities.Package;
 import com.ambrose.saigonbyday.entities.PackageInDay;
+import com.ambrose.saigonbyday.entities.PackageInDestination;
+import com.ambrose.saigonbyday.entities.Servicee;
 import com.ambrose.saigonbyday.repository.OrderDetailsRepository;
 import com.ambrose.saigonbyday.repository.OrderRepository;
 import com.ambrose.saigonbyday.repository.PackageInDayRepository;
 import com.ambrose.saigonbyday.repository.PackageInDestinationRepository;
 import com.ambrose.saigonbyday.repository.PackageRepository;
+import com.ambrose.saigonbyday.repository.ServiceInPackageRepository;
+import com.ambrose.saigonbyday.repository.ServiceRepository;
 import com.ambrose.saigonbyday.repository.specification.PackageInDaySpecification;
 import com.ambrose.saigonbyday.services.PackageInDayService;
 import com.ambrose.saigonbyday.services.ServiceUtils;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,13 +50,15 @@ public class PackageInDayServiceImpl implements PackageInDayService {
   private final PackageInDayRepository packageInDayRepository;
   private final OrderDetailsRepository orderDetailsRepository;
   private final PackageInDestinationRepository packageInDestinationRepository;
+  private final ServiceInPackageRepository serviceInPackageRepository;
+  private final ServiceRepository serviceRepository;
 
   @Override
   public ResponseEntity<?> findById(Long id) {
     try{
       PackageInDay packageInDay = packageInDayRepository.findByStatusIsTrueAndId(id);
       if (packageInDay != null){
-        PackageInDayDTO result = convertPackageInDayToPackageInDayDTO(packageInDay);
+        PackageInDaySaleDTO result = convertToPackageInDaySaleDTO(packageInDay);
         return ResponseUtil.getObject(result, HttpStatus.OK, "Fetched successfully");
 
       } else {
@@ -67,7 +75,7 @@ public class PackageInDayServiceImpl implements PackageInDayService {
     try{
       Pageable pageable = PageRequest.of(page - 1, limit);
       List<PackageInDay> packageInDays = packageInDayRepository.findAllByStatusIsTrue(pageable);
-      List<PackageInDayDTO> result = new ArrayList<>();
+      List<PackageInDaySaleDTO> result = new ArrayList<>();
 
       convertListPackageInDayToListPackageInDayDTO(packageInDays, result);
 
@@ -83,9 +91,9 @@ public class PackageInDayServiceImpl implements PackageInDayService {
     }
   }
 
-  private void convertListPackageInDayToListPackageInDayDTO(List<PackageInDay> packageInDays, List<PackageInDayDTO> result){
+  private void convertListPackageInDayToListPackageInDayDTO(List<PackageInDay> packageInDays, List<PackageInDaySaleDTO> result){
     for (PackageInDay packageInDay : packageInDays){
-      PackageInDayDTO newPackageInDayDTO = convertPackageInDayToPackageInDayDTO(packageInDay);
+      PackageInDaySaleDTO newPackageInDayDTO = convertToPackageInDaySaleDTO(packageInDay);
       result.add(newPackageInDayDTO);
     }
   }
@@ -94,7 +102,7 @@ public class PackageInDayServiceImpl implements PackageInDayService {
   public ResponseEntity<?> findAll(int page, int limit) {
     Pageable pageable = PageRequest.of(page - 1, limit);
     List<PackageInDay> entities = packageInDayRepository.findAllBy(pageable);
-    List<PackageInDayDTO> result = new ArrayList<>();
+    List<PackageInDaySaleDTO> result = new ArrayList<>();
 
     convertListPackageInDayToListPackageInDayDTO(entities, result);
 
@@ -318,10 +326,30 @@ public class PackageInDayServiceImpl implements PackageInDayService {
           }
         }
       }
+      List<String> serviceNames = new ArrayList<>();
+      List<Long> serviceIds = new ArrayList<>();
+      List<PackageInDestination> packageInDestinations = packageInDestinationRepository.findAllByPackageeId(packagee.getId());
+      for(PackageInDestination packageInDestination : packageInDestinations){
+        List<Servicee> servicees = serviceInPackageRepository.findServiceByPackageInDestinationId(packageInDestination.getId());
+        for(Servicee servicee : servicees){
+          serviceIds.add(servicee.getId());
+        }
+      }
+      List<Long> uniqueServiceIds = removeDuplicates(serviceIds);
 
+      for(Long uniqueServiceId : uniqueServiceIds){
+        serviceNames.add(serviceRepository.findById(uniqueServiceId).getName());
+      }
+      packageInDaySaleDTO.setServiceNames(serviceNames);
+      packageInDaySaleDTO.setCity(destinations.get(0).getCity().getName());
       packageInDaySaleDTO.setGalleryUrls(galleries);
     }
     return packageInDaySaleDTO;
+  }
+
+  public static List<Long> removeDuplicates(List<Long> serviceIds) {
+    Set<Long> uniqueIds = new HashSet<>(serviceIds);
+    return new ArrayList<>(uniqueIds);
   }
 
 

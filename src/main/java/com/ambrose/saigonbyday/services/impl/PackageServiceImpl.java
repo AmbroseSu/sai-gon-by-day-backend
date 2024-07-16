@@ -5,13 +5,19 @@ import com.ambrose.saigonbyday.config.CustomValidationException;
 import com.ambrose.saigonbyday.config.ResponseUtil;
 import com.ambrose.saigonbyday.converter.GenericConverter;
 import com.ambrose.saigonbyday.dto.PackageDTO;
+import com.ambrose.saigonbyday.dto.PackageRequestDTO;
+import com.ambrose.saigonbyday.dto.ServiceDestinationDTO;
 import com.ambrose.saigonbyday.entities.Destination;
 import com.ambrose.saigonbyday.entities.Package;
 import com.ambrose.saigonbyday.entities.PackageInDestination;
+import com.ambrose.saigonbyday.entities.ServiceInPackage;
+import com.ambrose.saigonbyday.entities.Servicee;
 import com.ambrose.saigonbyday.repository.DestinationRepository;
 import com.ambrose.saigonbyday.repository.PackageInDayRepository;
 import com.ambrose.saigonbyday.repository.PackageInDestinationRepository;
 import com.ambrose.saigonbyday.repository.PackageRepository;
+import com.ambrose.saigonbyday.repository.ServiceInPackageRepository;
+import com.ambrose.saigonbyday.repository.ServiceRepository;
 import com.ambrose.saigonbyday.services.PackageService;
 import com.ambrose.saigonbyday.services.ServiceUtils;
 import java.util.ArrayList;
@@ -32,6 +38,8 @@ public class PackageServiceImpl implements PackageService {
   private final PackageInDestinationRepository packageInDestinationRepository;
   private final GenericConverter genericConverter;
   private final DestinationRepository destinationRepository;
+  private final ServiceRepository serviceRepository;
+  private final ServiceInPackageRepository serviceInPackageRepository;
 
   @Override
   public ResponseEntity<?> findById(Long id) {
@@ -85,6 +93,11 @@ public class PackageServiceImpl implements PackageService {
         packageRepository.countAllByStatusIsTrue());
   }
 
+  @Override
+  public ResponseEntity<?> save(PackageDTO packageDTO) {
+    return null;
+  }
+
   private void convertListPackageToListPackageDTO(List<Package> packages, List<PackageDTO> result){
     for(Package packagee : packages){
       PackageDTO newPackageDTO = convertPackageToPackageDTO(packagee);
@@ -92,13 +105,18 @@ public class PackageServiceImpl implements PackageService {
     }
   }
 
-  @Override
-  public ResponseEntity<?> save(PackageDTO packageDTO) {
+
+  private PackageDTO savePackage(PackageRequestDTO packageRequestDTO) {
     try{
 
       ServiceUtils.errors.clear();
-      List<Long> requestPackageInDayIds = packageDTO.getPackageInDayIds();
-      List<Long> requestDestinationIds = packageDTO.getDestinationIds();
+      List<Long> requestPackageInDayIds = packageRequestDTO.getPackageDTO().getPackageInDayIds();
+
+      List<Long> requestDestinationIds = new ArrayList<>();
+      for (ServiceDestinationDTO serviceDestinationDTO : packageRequestDTO.getServiceDestinationDTOS()){
+        Long destinationId = destinationRepository.findDestinationByServiceId(serviceDestinationDTO.getId()).getId();
+        requestDestinationIds.add(destinationId);
+      }
 
       Package packagee;
 
@@ -112,33 +130,34 @@ public class PackageServiceImpl implements PackageService {
         throw new CustomValidationException(ServiceUtils.errors);
       }
 
-      if (packageDTO.getId() != null){
-        Package oldEntity = packageRepository.findById(packageDTO.getId());
+      if (packageRequestDTO.getPackageDTO().getId() != null){
+        Package oldEntity = packageRepository.findById(packageRequestDTO.getPackageDTO().getId());
         Package tempOldEntity = ServiceUtils.cloneFromEntity(oldEntity);
-        packagee = (Package) genericConverter.toEntity(packageDTO, PackageDTO.class);
+        packagee = (Package) genericConverter.toEntity(packageRequestDTO.getPackageDTO(), PackageDTO.class);
         packagee = ServiceUtils.fillMissingAttribute(packagee, tempOldEntity);
-        packageInDestinationRepository.deleteAllByPackageeId(packageDTO.getId());
+        packageInDestinationRepository.deleteAllByPackageeId(packageRequestDTO.getPackageDTO().getId());
         loadPackageInDestinationFromListDestinationIds(requestDestinationIds, packagee.getId());
 
         packageRepository.save(packagee);
 
       } else {
 
-        packageDTO.setStatus(true);
-        packagee = (Package) genericConverter.toEntity(packageDTO, Package.class);
+        packageRequestDTO.getPackageDTO().setStatus(true);
+        packagee = (Package) genericConverter.toEntity(packageRequestDTO.getPackageDTO(), Package.class);
         packageRepository.save(packagee);
         loadPackageInDestinationFromListDestinationIds(requestDestinationIds, packagee.getId());
 
       }
       PackageDTO result = convertPackageToPackageDTO(packagee);
-      if (packageDTO.getId() == null){
+      if (packageRequestDTO.getPackageDTO().getId() == null){
         result.setDestinationIds(requestDestinationIds);
       }
-      return ResponseUtil.getObject(result, HttpStatus.OK, "Saved successfully");
+      return result;
 
 
     } catch (Exception ex){
-      return ResponseUtil.error(ex.getMessage(),"Failed", HttpStatus.BAD_REQUEST);
+      ex.printStackTrace();
+      return null;
     }
   }
 
@@ -198,5 +217,36 @@ public class PackageServiceImpl implements PackageService {
   public Boolean checkExist(Long id) {
     Package packagee = packageRepository.findById(id);
     return packagee != null;
+  }
+
+  @Override
+  public ResponseEntity<?> save(PackageRequestDTO packageRequestDTO) {
+    try {
+
+      PackageDTO packageDTO = savePackage(packageRequestDTO);
+      if(packageDTO != null){
+        List<ServiceDestinationDTO> serviceDestinationDTOS = packageRequestDTO.getServiceDestinationDTOS();
+        if(!serviceDestinationDTOS.isEmpty()){
+          for (ServiceDestinationDTO serviceDestinationDTO : serviceDestinationDTOS){
+            Long destinationId = destinationRepository.findDestinationByServiceId(serviceDestinationDTO.getId()).getId();
+            PackageInDestination packageInDestination = packageInDestinationRepository.findByPackageeIdAndDestinationId(packageDTO.getId(),destinationId);
+            packageInDestination.setStartTime(serviceDestinationDTO.getStartTime());
+            packageInDestination.setEndTime(serviceDestinationDTO.getEndTime());
+            packageInDestination.setTransportation(serviceDestinationDTO.getTransportation());
+            packageInDestinationRepository.save(packageInDestination);
+            Servicee servicee = serviceRepository.findById(serviceDestinationDTO.getId());
+            ServiceInPackage sip = new ServiceInPackage();
+            sip.setServicee(servicee);
+            sip.setPackageInDestination(packageInDestination);
+            serviceInPackageRepository.save(sip);
+          }
+
+        }
+      }
+      return ResponseUtil.getObject(packageDTO, HttpStatus.OK, "Saved successfully");
+    } catch (Exception ex){
+      return ResponseUtil.error(ex.getMessage(), "Failed", HttpStatus.BAD_REQUEST);
+    }
+
   }
 }

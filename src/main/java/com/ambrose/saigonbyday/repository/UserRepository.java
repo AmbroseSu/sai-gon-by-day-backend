@@ -1,5 +1,6 @@
 package com.ambrose.saigonbyday.repository;
 
+import com.ambrose.saigonbyday.entities.Gallery;
 import com.ambrose.saigonbyday.entities.User;
 import com.ambrose.saigonbyday.entities.enums.Role;
 import java.util.List;
@@ -17,6 +18,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
   Optional<User> findByLogin(String login);
   Optional<User> findByPhone(String phone);
   boolean existsByEmail(String email);
+  List<User> findAllBy(Pageable pageable);
 
   boolean existsByPhone(String phone);
   User findByRole(Role role);

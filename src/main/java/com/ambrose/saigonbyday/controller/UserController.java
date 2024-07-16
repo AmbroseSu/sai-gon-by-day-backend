@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +34,19 @@ public class UserController {
   public ResponseEntity<?> findAllUserByRole(@RequestParam(name = "role") Role role, @RequestParam(defaultValue = "1") int page,
       @RequestParam(defaultValue = "10") int limit){
     return userService.findUserByRole(role, page, limit);
+  }
+
+  @GetMapping("/find-id/{id}")
+  //@PreAuthorize("hasAuthority('CUSTOMER')")
+  public ResponseEntity<?> getUserById(@PathVariable(name = "id") Long id){
+    return userService.findById(id);
+  }
+
+  @GetMapping("/find-all")
+  //@PreAuthorize("hasAuthority('CUSTOMER')")
+  public ResponseEntity<?> getAllUser(@RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int limit){
+    return userService.findAll(page, limit);
   }
 
 
